@@ -1,1 +1,2 @@
 c:\users\ricardo\documents\visual studio 2012\Projects\PADI-DSTM\MasterServer\bin\Debug\MasterServer.exe.config
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\bin\Debug\MasterServer.exe.config

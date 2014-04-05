@@ -11,9 +11,11 @@ namespace DummyClient
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        /// teste de commits
         [STAThread]
         static void Main()
         {
+            Console.WriteLine("Commit Test");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
