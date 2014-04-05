@@ -15,7 +15,6 @@ namespace DummyClient
         [STAThread]
         static void Main()
         {
-            Console.WriteLine("Commit Test");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
