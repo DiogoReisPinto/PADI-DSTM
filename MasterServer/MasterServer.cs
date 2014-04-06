@@ -30,6 +30,7 @@ namespace MasterServer
 
     public class RemoteMaster : MarshalByRefObject, IMaster
     {
+        private int serverID=0;
         private Dictionary<int, string> serversLocation = new Dictionary<int, string>();
         private Dictionary<int, int> padIntLocation = new Dictionary<int, int>();
 
@@ -41,6 +42,12 @@ namespace MasterServer
         public int GetTS()
         {
             return 1;
+        }
+
+        public bool registerSlave(String url)
+        {
+            serversLocation.Add(++serverID, url);
+            return true;
         }
 
         public void ConfirmWrite(int uid, string serverID)

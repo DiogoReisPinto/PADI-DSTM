@@ -11,5 +11,6 @@ namespace PADIDSTM
         string DiscoverPadInt(int uid);
         int GetTS();
         void ConfirmWrite(int uid, string serverID);
+        bool registerSlave(String url);
     }
 }
