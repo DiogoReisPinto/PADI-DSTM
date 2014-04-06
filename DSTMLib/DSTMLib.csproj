@@ -32,6 +32,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -39,6 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IMaster.cs" />
+    <Compile Include="IPadInt.cs" />
+    <Compile Include="ISlave.cs" />
+    <Compile Include="TxException.cs" />
     <Compile Include="DSTMLib.cs" />
     <Compile Include="PadInt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

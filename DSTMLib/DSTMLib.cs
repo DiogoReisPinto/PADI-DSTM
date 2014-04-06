@@ -4,12 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PADIDSTM;
+using System.Runtime.Remoting.Channels.Tcp;
 
 namespace PADIDSTM
 {
     public class DSTMLib
     {
-        bool Init() { return true; }
+        bool Init() {
+            return true;
+        }
 
         bool TxBegin() { return true; }
 
@@ -32,28 +35,6 @@ namespace PADIDSTM
 
         PadInt AccessPadInt(int uid) { return null; }
     
-    }
-
-    public interface IMaster
-    {
-        string DiscoverPadInt(int uid);
-        int GetTS();
-        void ConfirmWrite(int uid, string serverID);
-    }
-
-    public interface ISlave
-    {
-        void status();
-        void freeze();
-        void recover();
-        PadInt create(int uid);
-        PadInt access(int uid);
-    }
-
-    public interface IPadInt
-    {
-        int read();
-        void write(int value);
     }
 
 }
