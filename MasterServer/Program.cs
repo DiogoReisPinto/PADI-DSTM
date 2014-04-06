@@ -6,8 +6,12 @@ using System.Windows.Forms;
 
 namespace MasterServer
 {
-    static class Program
+    public class Program
     {
+        private Dictionary<int, string> serversLocation = new Dictionary<int, string>();
+        private Dictionary<int, int> padIntLocation = new Dictionary<int, int>();
+        
+        
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

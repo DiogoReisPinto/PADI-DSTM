@@ -1,2 +1,11 @@
 c:\users\ricardo\documents\visual studio 2012\Projects\PADI-DSTM\MasterServer\bin\Debug\MasterServer.exe.config
 C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\bin\Debug\MasterServer.exe.config
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.csprojResolveAssemblyReference.cache
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.Properties.Resources.resources
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.csproj.GenerateResource.Cache
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\bin\Debug\MasterServer.exe
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\bin\Debug\MasterServer.pdb
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\bin\Debug\DSTMLib.dll
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\bin\Debug\DSTMLib.pdb
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.exe
+C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.pdb
