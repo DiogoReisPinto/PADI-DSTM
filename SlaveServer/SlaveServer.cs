@@ -25,10 +25,8 @@ namespace SlaveServer
 
         public bool login(string URL)
         {
-            /*DEFINE OTHER ONE*/
-            int port = 8087;
-            url = "tcp://localhost:" + port + "/Server";
-            TcpChannel channel = new TcpChannel(Convert.ToInt32(port));
+           
+            TcpChannel channel = new TcpChannel(0);
 
             ChannelServices.RegisterChannel(channel, true);
             RemotingConfiguration.RegisterWellKnownServiceType(
@@ -36,6 +34,9 @@ namespace SlaveServer
                 "RemoteSlave",
                 WellKnownObjectMode.Singleton);
 
+            var channelData = (ChannelDataStore)channel.ChannelData;
+            var port = new System.Uri(channelData.ChannelUris[0]).Port;
+            url = "tcp://localhost:" + port + "/Server";
 
             IMaster obj = (IMaster)Activator.GetObject(
                                     typeof(IMaster),
