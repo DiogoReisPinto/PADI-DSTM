@@ -35,14 +35,12 @@ namespace PADIDSTM
         bool Recover(string URL) { return true; }
 
         PadInt CreatePadInt(int uid) {
-            string url = masterServ.GetLocationNewPadInt();
+            string url = masterServ.GetLocationNewPadInt(uid);
             ISlave slave = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url);
             PadInt newPadInt = slave.create(uid);
             return newPadInt;
-            
-
         }
 
         PadInt AccessPadInt(int uid) { return null; }

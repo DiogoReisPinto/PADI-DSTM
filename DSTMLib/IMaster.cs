@@ -10,9 +10,9 @@ namespace PADIDSTM
     {
         string DiscoverPadInt(int uid);
 
-        string GetLocationNewPadInt();
+        string GetLocationNewPadInt(int uid);
         string GetTS(int uid);
-        void ConfirmWrite(int uid, string serverID);
+        void RegisterNewPadInt(int uid, string serverURL);
         bool registerSlave(String url);
     }
 }

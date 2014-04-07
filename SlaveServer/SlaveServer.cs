@@ -21,9 +21,10 @@ namespace SlaveServer
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
+            bool res = login();
         }
 
-        public bool login(string URL)
+        public static bool login()
         {
            
             TcpChannel channel = new TcpChannel(0);
@@ -42,6 +43,7 @@ namespace SlaveServer
                                     typeof(IMaster),
                                 "tcp://localhost:8086/RemoteMaster");
             bool ret = obj.registerSlave(url);
+            RemoteSlave.url = url;
             return ret;
         }
     }
@@ -50,16 +52,25 @@ namespace SlaveServer
     {
         private Dictionary<int, PadInt> padIntObjects = new Dictionary<int, PadInt>();
 
+        public static string url;
+
+
         public PadInt access(int uid)
         {
-            return null;
+           PadInt req = padIntObjects[uid];
+           return req;
         }
+
+
         public PadInt create(int uid)
         {
             PadInt newPadInt = new PadInt(uid);
             padIntObjects.Add(uid, newPadInt);
             return newPadInt;
+
         }
+
+
         public void freeze() 
         { 
             return; 
@@ -69,7 +80,12 @@ namespace SlaveServer
         }
         public void status()
         {
-            return;
+            Console.WriteLine("STATUS ON SERVER {0}", url);
+            Console.WriteLine("------------STORED OBJECTS------------");
+            foreach (KeyValuePair<int, PadInt> entry in padIntObjects)
+            {
+                Console.WriteLine("Object with id:{0} has value {1}", entry.Key, entry.Value.read());
+            }
         }
 
     }

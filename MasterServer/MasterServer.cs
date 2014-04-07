@@ -30,42 +30,52 @@ namespace MasterServer
 
     public class RemoteMaster : MarshalByRefObject, IMaster
     {
-        private int serverID=0;
-        private Dictionary<int, string> serversLocation = new Dictionary<int, string>();
-        private Dictionary<int, int> padIntLocation = new Dictionary<int, int>();
+        private Dictionary<string, int> serversLoad = new Dictionary<string, int>();
+        private Dictionary<int, string> padIntLocation = new Dictionary<int, string>();
 
         public string GetLocationNewPadInt(int uid)
         {
             string urlServerDest=null;
-            //CALL TO THE LOAD BALANCER ALGORITHM TO CHECK WHAT IS THE BEST SERV
-            //FOR NOW IS JUST USING THE FIRST REGISTERED SLAVE
-            foreach (KeyValuePair<int, string> entry in serversLocation)
-            {
-                if (entry.Key ==1)
-                    urlServerDest = entry.Value;
-            }
-            
+            //CALL TO THE LOAD BALANCER ALGORITHM 
+            string k = serversLoad.Keys.First();
+            urlServerDest = k;
             return urlServerDest;
+        }
+
+        public string DiscoverPadInt(int uid)
+        {
+            string url = null;
+            foreach (KeyValuePair<int, string> entry in padIntLocation)
+            {
+                if (entry.Key == uid)
+                    url = entry.Value;
+            }
+            return url;
         }
 
         public string GetTS(int uid)
         {
             //uid of slave server for tie-breaker
-            string timestamp = GetTimestamp(DateTime.Now) + uid;
+            string timestamp = TimeStamp.GetTimestamp(DateTime.Now) + uid;
             return timestamp;
         }
 
         public bool registerSlave(String url)
         {
-            serversLocation.Add(++serverID, url);
+            serversLoad.Add(url, 0);
             return true;
         }
 
-        public void ConfirmWrite(int uid, string serverID)
+        public void RegisterNewPadInt(int uid, string serverURL)
         {
-            return;
+            padIntLocation.Add(uid, serverURL);
         }
 
+      
+    }
+
+    public static class TimeStamp
+    {
         public static String GetTimestamp(this DateTime value)
         {
             return value.ToString("yyyyMMddHHmmssffff");
