@@ -9,7 +9,9 @@ namespace PADIDSTM
     public interface IMaster
     {
         string DiscoverPadInt(int uid);
-        int GetTS();
+
+        string GetLocationNewPadInt();
+        string GetTS(int uid);
         void ConfirmWrite(int uid, string serverID);
         bool registerSlave(String url);
     }

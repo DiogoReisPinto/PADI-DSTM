@@ -56,7 +56,9 @@ namespace SlaveServer
         }
         public PadInt create(int uid)
         {
-            return null;
+            PadInt newPadInt = new PadInt(uid);
+            padIntObjects.Add(uid, newPadInt);
+            return newPadInt;
         }
         public void freeze() 
         { 

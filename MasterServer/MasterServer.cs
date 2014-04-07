@@ -34,14 +34,25 @@ namespace MasterServer
         private Dictionary<int, string> serversLocation = new Dictionary<int, string>();
         private Dictionary<int, int> padIntLocation = new Dictionary<int, int>();
 
-        public string DiscoverPadInt(int uid) {
-            string newString = "teste";
-            return newString;
+        public string GetLocationNewPadInt(int uid)
+        {
+            string urlServerDest=null;
+            //CALL TO THE LOAD BALANCER ALGORITHM TO CHECK WHAT IS THE BEST SERV
+            //FOR NOW IS JUST USING THE FIRST REGISTERED SLAVE
+            foreach (KeyValuePair<int, string> entry in serversLocation)
+            {
+                if (entry.Key ==1)
+                    urlServerDest = entry.Value;
+            }
+            
+            return urlServerDest;
         }
 
-        public int GetTS()
+        public string GetTS(int uid)
         {
-            return 1;
+            //uid of slave server for tie-breaker
+            string timestamp = GetTimestamp(DateTime.Now) + uid;
+            return timestamp;
         }
 
         public bool registerSlave(String url)
@@ -53,6 +64,11 @@ namespace MasterServer
         public void ConfirmWrite(int uid, string serverID)
         {
             return;
+        }
+
+        public static String GetTimestamp(this DateTime value)
+        {
+            return value.ToString("yyyyMMddHHmmssffff");
         }
     }
 }

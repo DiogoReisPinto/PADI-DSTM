@@ -10,7 +10,13 @@ namespace PADIDSTM
 {
     public class DSTMLib
     {
+
+        public static IMaster masterServ;
+
         bool Init() {
+            masterServ = (IMaster)Activator.GetObject(
+                                    typeof(IMaster),
+                                "tcp://localhost:8086/RemoteMaster");
             return true;
         }
 
@@ -29,8 +35,14 @@ namespace PADIDSTM
         bool Recover(string URL) { return true; }
 
         PadInt CreatePadInt(int uid) {
-            PadInt newPadInt = new PadInt(uid);
+            string url = masterServ.GetLocationNewPadInt();
+            ISlave slave = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               url);
+            PadInt newPadInt = slave.create(uid);
             return newPadInt;
+            
+
         }
 
         PadInt AccessPadInt(int uid) { return null; }
