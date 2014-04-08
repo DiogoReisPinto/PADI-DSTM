@@ -69,23 +69,23 @@ namespace PADIDSTM
             return true;  
         }
 
-        public static PadInt CreatePadInt(int uid) {
+        public static RemotePadInt CreatePadInt(int uid) {
             string url = masterServ.GetLocationNewPadInt(uid);
             ISlave slave = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url);
 
-            PadInt newPadInt = slave.create(uid);
+            RemotePadInt newPadInt = slave.create(uid);
             return newPadInt;
         }
 
-        public static PadInt AccessPadInt(int uid) {
+        public static RemotePadInt AccessPadInt(int uid) {
             string url = masterServ.DiscoverPadInt(uid);
             ISlave slave = (ISlave)Activator.GetObject(
                                   typeof(ISlave),
                               url);
 
-            PadInt pint = slave.access(uid);
+            RemotePadInt pint = slave.access(uid);
             return pint;
 
         }

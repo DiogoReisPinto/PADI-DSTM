@@ -1,43 +1,32 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Channels;
-using System.Runtime.Remoting.Channels.Tcp;
-using System.Runtime.Serialization.Formatters;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace PADIDSTM
 {
-    public class PadInt : MarshalByRefObject, IPadInt
+    class PadInt : IPadInt
     {
-        public int uid;
-        public int value;
-        public string ts;
-        public string url;
 
-        public PadInt(int uid, string url)
+        int uid;
+
+        public PadInt(int uid)
         {
             this.uid = uid;
-            this.url = url;
+        }
+        
+        public void Write(int value)
+        {
+            RemotePadInt RpadInt = DSTMLib.AccessPadInt(uid);
+            RpadInt.Write(value);
         }
 
-       
-
-       public int Read(){
-           ISlave server = (ISlave)Activator.GetObject(
-                                   typeof(ISlave),
-                               url);
-           server.ReadPadInt(uid);
-           return this.value;
-    }
-
-       public void Write(int value){
-           ISlave server = (ISlave)Activator.GetObject(
-                                   typeof(ISlave),
-                               url);
-           server.WritePadInt(uid, value);
-
-       }
+        public int Read()
+        {
+            RemotePadInt RpadInt = DSTMLib.AccessPadInt(uid);
+            int val = RpadInt.Read();
+            return val;
+        }
     }
 }

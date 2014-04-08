@@ -41,12 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PadInt.cs" />
     <Compile Include="IMaster.cs" />
     <Compile Include="IPadInt.cs" />
     <Compile Include="ISlave.cs" />
     <Compile Include="TxException.cs" />
     <Compile Include="DSTMLib.cs" />
-    <Compile Include="PadInt.cs" />
+    <Compile Include="RemotePadInt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

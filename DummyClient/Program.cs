@@ -17,9 +17,9 @@ namespace DummyClient
             Console.WriteLine("INITIALIZED");
             res = DSTMLib.TxBegin();
             Console.WriteLine("AFTER BEGIN");
-            PadInt pi_a = DSTMLib.CreatePadInt(0);
+            RemotePadInt pi_a = DSTMLib.CreatePadInt(0);
             Console.WriteLine("AFTER createPadInt");
-            PadInt pi_b = DSTMLib.CreatePadInt(1);
+            RemotePadInt pi_b = DSTMLib.CreatePadInt(1);
             res = DSTMLib.TxCommit();
 
             res = DSTMLib.TxBegin();
@@ -30,13 +30,10 @@ namespace DummyClient
             Console.WriteLine("a = " + pi_a.Read());
             Console.WriteLine("b = " + pi_b.Read());
             DSTMLib.Status();
-            // The following 3 lines assume we have 2 servers: one at port 2001 and another at port 2002
-           // res = DSTMLib.Freeze("tcp://localhost:2001/RemoteSlave");
-            pi_a.Write(40);
-            pi_b.Write(41);
-
+            // The following 3 lines assume
+            res = DSTMLib.Freeze("tcp://localhost:2001/RemoteSlave");
             res = DSTMLib.Status();
-           // res = DSTMLib.Recover("tcp://localhost:2001/RemoteSlave");
+            res = DSTMLib.Recover("tcp://localhost:2001/RemoteSlave");
             res = DSTMLib.Status();
 
             res = DSTMLib.TxCommit();  
