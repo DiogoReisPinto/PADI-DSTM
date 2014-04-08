@@ -16,6 +16,7 @@ namespace SlaveServer
     {
 
         private static string url;
+        private static IMaster masterServ;
         
         static void Main()
         {
@@ -40,12 +41,13 @@ namespace SlaveServer
 
             var channelData = (ChannelDataStore)channel.ChannelData;
             var port = new System.Uri(channelData.ChannelUris[0]).Port;
-            url = "tcp://localhost:" + port + "/Server";
+            url = "tcp://localhost:" + port + "/RemoteSlave";
 
-            IMaster obj = (IMaster)Activator.GetObject(
+            masterServ = (IMaster)Activator.GetObject(
                                     typeof(IMaster),
                                 "tcp://localhost:8086/RemoteMaster");
-            bool ret = obj.registerSlave(url);
+            RemoteSlave.masterServ = masterServ;
+            bool ret = masterServ.registerSlave(url);
             RemoteSlave.url = url;
             return ret;
         }
@@ -58,6 +60,7 @@ namespace SlaveServer
         private bool freezed=false;
         private bool failed = false;
         public static string url;
+        public static IMaster masterServ;
 
         
         public PadInt access(int uid)
@@ -80,7 +83,10 @@ namespace SlaveServer
             {
                 PadInt newPadInt = new PadInt(uid);
                 padIntObjects.Add(uid, newPadInt);
+                masterServ.RegisterNewPadInt(uid, url);
+                
                 return newPadInt;
+
             }
             else
             {

@@ -24,9 +24,6 @@ namespace MasterServer
                 typeof(RemoteMaster),
                 "RemoteMaster",
                 WellKnownObjectMode.Singleton);
-
-            Console.WriteLine("IM UP!");
-
             Console.Read();
 
         }
@@ -90,7 +87,6 @@ namespace MasterServer
 
         public void callStatusOnSlaves()
         {
-            Console.WriteLine("A CHAMAR OS ESCRAVOS");
             foreach (string slave in serversLoad.Keys)
             {
                 ISlave server = (ISlave)Activator.GetObject(

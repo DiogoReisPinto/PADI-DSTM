@@ -23,16 +23,12 @@ namespace PADIDSTM
             masterServ = (IMaster)Activator.GetObject(
                                     typeof(IMaster),
                                 "tcp://localhost:8086/RemoteMaster");
-            Console.WriteLine("Referencia Master Criada");
             return true;
             
         }
 
         public static bool TxBegin() {
-            Console.WriteLine("TRANSACTION STARTED!");
-            
             int tID = masterServ.getTransactionID();
-            Console.WriteLine("ID For TRANSACTION CREATED");
             string timeStamp = masterServ.GetTS(tID);
             transactionTS = timeStamp;
             return true;
@@ -42,7 +38,10 @@ namespace PADIDSTM
 
         public static bool TxAbort() { return true; }
 
-        public static bool Status() { return true; }
+        public static bool Status() { 
+            masterServ.callStatusOnSlaves();
+            return true;
+        }
 
         public static bool Fail(string URL) { return true; }
 
@@ -55,11 +54,21 @@ namespace PADIDSTM
             ISlave slave = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url);
+
             PadInt newPadInt = slave.create(uid);
             return newPadInt;
         }
 
-        public static PadInt AccessPadInt(int uid) { return null; }
+        public static PadInt AccessPadInt(int uid) {
+            string url = masterServ.DiscoverPadInt(uid);
+            ISlave slave = (ISlave)Activator.GetObject(
+                                  typeof(ISlave),
+                              url);
+
+            PadInt pint = slave.access(uid);
+            return pint;
+
+        }
     
     }
 
