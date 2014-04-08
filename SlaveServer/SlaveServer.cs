@@ -84,7 +84,7 @@ namespace SlaveServer
             if (freezed)
                 freezedQueue.Add(() => WritePadInt(uid, value));
             else
-                padIntObjects[uid].Write(value);
+                padIntObjects[uid].value = value;
             
         }
 
@@ -93,7 +93,7 @@ namespace SlaveServer
             if (freezed)
                 freezedQueue.Add(() => ReadPadInt(uid));
             else
-                return padIntObjects[uid].Read();
+                return padIntObjects[uid].value;
             return 0;
         }
 
@@ -127,6 +127,7 @@ namespace SlaveServer
         }
 
         public void recover() {
+            freezed = false;
             foreach (var action in freezedQueue)
             {
                 action.Invoke();
