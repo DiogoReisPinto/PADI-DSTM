@@ -12,19 +12,13 @@ namespace MasterServer
 {
     public class MasterServer
     {
+        [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Form1());
-            TcpChannel channel = new TcpChannel(8086);
-            ChannelServices.RegisterChannel(channel, true);
+            Application.Run(new Form1());
 
-            RemotingConfiguration.RegisterWellKnownServiceType(
-                typeof(RemoteMaster),
-                "RemoteMaster",
-                WellKnownObjectMode.Singleton);
-            Console.Read();
 
         }
     }
@@ -35,6 +29,12 @@ namespace MasterServer
         private Dictionary<int, string> padIntLocation = new Dictionary<int, string>();
         private int transactionID = 0;
         private Object tIDLock = new Object();
+        private Form1 form;
+
+        public RemoteMaster(Form1 form)
+        {
+            this.form = form;
+        }
 
         public string GetLocationNewPadInt(int uid)
         {
@@ -65,13 +65,17 @@ namespace MasterServer
 
         public bool registerSlave(String url)
         {
+            form.Invoke(new delLog(form.log), new Object[] { "Slave Server connecting at: " + url });
             serversLoad.Add(url, 0);
+            form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
             return true;
         }
 
         public void RegisterNewPadInt(int uid, string serverURL)
         {
             padIntLocation.Add(uid, serverURL);
+            form.Invoke(new delUpdatePadInt(form.updatePadInts), new Object[] { this.padIntLocation });
+            form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
         }
 
         public int getTransactionID()
