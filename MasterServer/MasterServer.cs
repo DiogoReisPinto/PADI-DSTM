@@ -76,7 +76,6 @@ namespace MasterServer
 
         public int getTransactionID()
         {
-            Console.WriteLine("IM HERE!");
             int tID;
             lock (tIDLock)
             {

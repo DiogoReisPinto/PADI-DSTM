@@ -30,7 +30,7 @@ namespace SlaveServer
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
-            props["port"] = 0;
+            props["port"] = 2001;
             TcpChannel channel = new TcpChannel(props, null, provider);
 
             ChannelServices.RegisterChannel(channel, true);
@@ -70,18 +70,38 @@ namespace SlaveServer
                 PadInt req = padIntObjects[uid];
                 return req;
             }
-            else { 
+            else if (freezed)
+            {
                 freezedQueue.Add(() => access(uid));
                 return null;
             }
+            else
+                return null;
         }
 
+        public void WritePadInt(int uid, int value)
+        {
+            if (freezed)
+                freezedQueue.Add(() => WritePadInt(uid, value));
+            else
+                padIntObjects[uid].Write(value);
+            
+        }
+
+        public int ReadPadInt(int uid)
+        {
+            if (freezed)
+                freezedQueue.Add(() => ReadPadInt(uid));
+            else
+                return padIntObjects[uid].Read();
+            return 0;
+        }
 
         public PadInt create(int uid)
         {
             if (!freezed && !failed)
             {
-                PadInt newPadInt = new PadInt(uid);
+                PadInt newPadInt = new PadInt(uid,url);
                 padIntObjects.Add(uid, newPadInt);
                 masterServ.RegisterNewPadInt(uid, url);
                 

@@ -43,11 +43,31 @@ namespace PADIDSTM
             return true;
         }
 
-        public static bool Fail(string URL) { return true; }
+        public static bool Fail(string url)
+        {
+            ISlave slave = (ISlave)Activator.GetObject(
+                typeof(ISlave),
+                url);
+            slave.fail();
+            return true;
+        }
 
-        public static bool Freeze(string URL) { return true; }
+        public static bool Freeze(string url) {
+            ISlave slave = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               url);
+            slave.freeze();
+            return true;
+        }
 
-        public static bool Recover(string URL) { return true; }
+        public static bool Recover(string url)
+        {
+            ISlave slave = (ISlave)Activator.GetObject(
+                  typeof(ISlave),
+                  url);
+            slave.recover();
+            return true;  
+        }
 
         public static PadInt CreatePadInt(int uid) {
             string url = masterServ.GetLocationNewPadInt(uid);
