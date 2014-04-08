@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using PADIDSTM;
 using System.Runtime.Remoting.Channels.Tcp;
+using System.Runtime.Remoting.Channels;
+using System.Collections;
+using System.Runtime.Serialization.Formatters;
 
 namespace PADIDSTM
 {
@@ -12,35 +15,42 @@ namespace PADIDSTM
     {
 
         public static IMaster masterServ;
-        public string transactionTS;
+        public static string transactionTS;
 
-        bool Init() {
+        public static bool Init() {
+            TcpChannel channel = new TcpChannel(0);
+            ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
                                     typeof(IMaster),
                                 "tcp://localhost:8086/RemoteMaster");
+            Console.WriteLine("Referencia Master Criada");
             return true;
+            
         }
 
-        bool TxBegin() {
+        public static bool TxBegin() {
+            Console.WriteLine("TRANSACTION STARTED!");
+            
             int tID = masterServ.getTransactionID();
+            Console.WriteLine("ID For TRANSACTION CREATED");
             string timeStamp = masterServ.GetTS(tID);
             transactionTS = timeStamp;
             return true;
         }
 
-        bool TxCommit() { return true; }
+        public static bool TxCommit() { return true; }
 
-        bool TxAbort() { return true; }
+        public static bool TxAbort() { return true; }
 
-        bool Status() { return true; }
+        public static bool Status() { return true; }
 
-        bool Fail(string URL) { return true; }
+        public static bool Fail(string URL) { return true; }
 
-        bool Freeze(string URL) { return true; }
+        public static bool Freeze(string URL) { return true; }
 
-        bool Recover(string URL) { return true; }
+        public static bool Recover(string URL) { return true; }
 
-        PadInt CreatePadInt(int uid) {
+        public static PadInt CreatePadInt(int uid) {
             string url = masterServ.GetLocationNewPadInt(uid);
             ISlave slave = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
@@ -49,7 +59,7 @@ namespace PADIDSTM
             return newPadInt;
         }
 
-        PadInt AccessPadInt(int uid) { return null; }
+        public static PadInt AccessPadInt(int uid) { return null; }
     
     }
 

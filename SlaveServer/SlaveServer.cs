@@ -20,6 +20,7 @@ namespace SlaveServer
         static void Main()
         {
             bool res = login();
+            Console.Read();
         }
 
         public static bool login()
@@ -117,7 +118,7 @@ namespace SlaveServer
             Console.WriteLine("------------STORED OBJECTS------------");
             foreach (KeyValuePair<int, PadInt> entry in padIntObjects)
             {
-                Console.WriteLine("Object with id:{0} has value {1}", entry.Key, entry.Value.read());
+                Console.WriteLine("Object with id:{0} has value {1}", entry.Key, entry.Value.Read());
             }
         }
 

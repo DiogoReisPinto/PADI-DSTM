@@ -3,7 +3,7 @@ namespace PADIDSTM
 {
     interface IPadInt
     {
-        int read();
-        void write(int value);
+        int Read();
+        void Write(int value);
     }
 }

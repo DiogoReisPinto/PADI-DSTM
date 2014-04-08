@@ -16,11 +16,11 @@ namespace PADIDSTM
             this.uid = uid;
         }
 
-       public int read(){
+       public int Read(){
            return this.value;
     }
 
-       public void write(int value){
+       public void Write(int value){
            this.value = value;
 
        }

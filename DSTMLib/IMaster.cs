@@ -14,7 +14,7 @@ namespace PADIDSTM
         string GetTS(int uid);
         void RegisterNewPadInt(int uid, string serverURL);
         bool registerSlave(String url);
-
         int getTransactionID();
+        void callStatusOnSlaves();
     }
 }

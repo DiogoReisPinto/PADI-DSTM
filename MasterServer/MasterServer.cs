@@ -16,7 +16,7 @@ namespace MasterServer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            //Application.Run(new Form1());
             TcpChannel channel = new TcpChannel(8086);
             ChannelServices.RegisterChannel(channel, true);
 
@@ -24,6 +24,10 @@ namespace MasterServer
                 typeof(RemoteMaster),
                 "RemoteMaster",
                 WellKnownObjectMode.Singleton);
+
+            Console.WriteLine("IM UP!");
+
+            Console.Read();
 
         }
     }
@@ -75,12 +79,25 @@ namespace MasterServer
 
         public int getTransactionID()
         {
+            Console.WriteLine("IM HERE!");
             int tID;
             lock (tIDLock)
             {
                 tID = transactionID++;
             }
             return tID;
+        }
+
+        public void callStatusOnSlaves()
+        {
+            Console.WriteLine("A CHAMAR OS ESCRAVOS");
+            foreach (string slave in serversLoad.Keys)
+            {
+                ISlave server = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               slave);
+                server.status();
+            }
         }
 
 
