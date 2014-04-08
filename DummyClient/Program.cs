@@ -31,11 +31,12 @@ namespace DummyClient
             Console.WriteLine("b = " + pi_b.Read());
             DSTMLib.Status();
             // The following 3 lines assume we have 2 servers: one at port 2001 and another at port 2002
-            res = DSTMLib.Freeze("tcp://localhost:2001/RemoteSlave");
+           // res = DSTMLib.Freeze("tcp://localhost:2001/RemoteSlave");
             pi_a.Write(40);
             pi_b.Write(41);
+
             res = DSTMLib.Status();
-            res = DSTMLib.Recover("tcp://localhost:2001/RemoteSlave");
+           // res = DSTMLib.Recover("tcp://localhost:2001/RemoteSlave");
             res = DSTMLib.Status();
 
             res = DSTMLib.TxCommit();  
