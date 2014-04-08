@@ -12,6 +12,7 @@ namespace PADIDSTM
     {
 
         public static IMaster masterServ;
+        public string transactionTS;
 
         bool Init() {
             masterServ = (IMaster)Activator.GetObject(
@@ -20,7 +21,12 @@ namespace PADIDSTM
             return true;
         }
 
-        bool TxBegin() { return true; }
+        bool TxBegin() {
+            int tID = masterServ.getTransactionID();
+            string timeStamp = masterServ.GetTS(tID);
+            transactionTS = timeStamp;
+            return true;
+        }
 
         bool TxCommit() { return true; }
 

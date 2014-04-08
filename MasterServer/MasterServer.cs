@@ -32,10 +32,12 @@ namespace MasterServer
     {
         private Dictionary<string, int> serversLoad = new Dictionary<string, int>();
         private Dictionary<int, string> padIntLocation = new Dictionary<int, string>();
+        private int transactionID = 0;
+        private Object tIDLock = new Object();
 
         public string GetLocationNewPadInt(int uid)
         {
-            string urlServerDest=null;
+            string urlServerDest = null;
             //CALL TO THE LOAD BALANCER ALGORITHM 
             string k = serversLoad.Keys.First();
             urlServerDest = k;
@@ -71,7 +73,17 @@ namespace MasterServer
             padIntLocation.Add(uid, serverURL);
         }
 
-      
+        public int getTransactionID()
+        {
+            int tID;
+            lock (tIDLock)
+            {
+                tID = transactionID++;
+            }
+            return tID;
+        }
+
+
     }
 
     public static class TimeStamp

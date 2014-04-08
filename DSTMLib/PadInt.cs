@@ -9,8 +9,7 @@ namespace PADIDSTM
     {
         public int uid;
         public int value;
-        public int writeTS;
-        public int readTS;
+        public string ts;
 
         public PadInt(int uid)
         {
