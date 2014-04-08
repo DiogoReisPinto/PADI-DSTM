@@ -23,6 +23,7 @@ namespace PADIDSTM
 
        public void write(int value){
            this.value = value;
+
        }
     }
 }

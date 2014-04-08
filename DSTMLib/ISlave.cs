@@ -6,6 +6,7 @@ namespace PADIDSTM
         PadInt access(int uid);
         PadInt create(int uid);
         void freeze();
+        void fail();
         void recover();
         void status();
     }

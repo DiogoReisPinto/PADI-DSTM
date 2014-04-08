@@ -7,6 +7,8 @@ using PADIDSTM;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting;
+using System.Runtime.Serialization.Formatters;
+using System.Collections;
 
 namespace SlaveServer
 {
@@ -17,17 +19,17 @@ namespace SlaveServer
         
         static void Main()
         {
-             
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
             bool res = login();
         }
 
         public static bool login()
         {
-           
-            TcpChannel channel = new TcpChannel(0);
+
+            BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
+            provider.TypeFilterLevel = TypeFilterLevel.Full;
+            IDictionary props = new Hashtable();
+            props["port"] = 0;
+            TcpChannel channel = new TcpChannel(props, null, provider);
 
             ChannelServices.RegisterChannel(channel, true);
             RemotingConfiguration.RegisterWellKnownServiceType(
@@ -51,36 +53,67 @@ namespace SlaveServer
     public class RemoteSlave : MarshalByRefObject, ISlave
     {
         private Dictionary<int, PadInt> padIntObjects = new Dictionary<int, PadInt>();
-
+        private List<Action> freezedQueue = new List<Action>();
+        private bool freezed=false;
+        private bool failed = false;
         public static string url;
 
-
+        
         public PadInt access(int uid)
         {
-           PadInt req = padIntObjects[uid];
-           return req;
+            if (!freezed && !failed)
+            {
+                PadInt req = padIntObjects[uid];
+                return req;
+            }
+            else { 
+                freezedQueue.Add(() => access(uid));
+                return null;
+            }
         }
 
 
         public PadInt create(int uid)
         {
-            PadInt newPadInt = new PadInt(uid);
-            padIntObjects.Add(uid, newPadInt);
-            return newPadInt;
-
+            if (!freezed && !failed)
+            {
+                PadInt newPadInt = new PadInt(uid);
+                padIntObjects.Add(uid, newPadInt);
+                return newPadInt;
+            }
+            else
+            {
+                freezedQueue.Add(() => create(uid));
+                return null;
+            }
         }
 
 
         public void freeze() 
-        { 
-            return; 
+        {
+            freezed = true;
         }
+
+        public void fail()
+        {
+            failed = true;
+        }
+
         public void recover() {
-            return;
+            foreach (var action in freezedQueue)
+            {
+                action.Invoke();
+            }
         }
         public void status()
         {
             Console.WriteLine("STATUS ON SERVER {0}", url);
+            if (freezed)
+                Console.WriteLine("SERVER IS FREEZED");
+            else if (failed)
+                Console.WriteLine("SERVER IS FAILED");
+            else
+                Console.WriteLine("SERVER IS OK");
             Console.WriteLine("------------STORED OBJECTS------------");
             foreach (KeyValuePair<int, PadInt> entry in padIntObjects)
             {
