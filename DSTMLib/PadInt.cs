@@ -9,7 +9,7 @@ namespace PADIDSTM
     public class PadInt : IPadInt
     {
 
-        int uid;
+        public int uid;
 
         public PadInt(int uid)
         {

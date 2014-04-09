@@ -27,6 +27,9 @@ namespace DummyClient
             pi_b = DSTMLib.AccessPadInt(1);
             pi_a.Write(36);
             pi_b.Write(37);
+            DSTMLib.Status();
+            res = DSTMLib.TxCommit(); 
+            res = DSTMLib.TxBegin();
             Console.WriteLine("a = " + pi_a.Read());
             Console.WriteLine("b = " + pi_b.Read());
             DSTMLib.Status();

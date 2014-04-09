@@ -36,6 +36,7 @@ namespace PADIDSTM
         {
             this.uid = uid;
             this.url = url;
+            this.wts = 0;
         }
 
 
@@ -53,18 +54,24 @@ namespace PADIDSTM
            int value = -999;
            if (tc > this.wts)
            {
-              TVersion dSelect = getMax(tc);
-               if(dSelect.writeTS==this.wts)
-                   value= server.ReadPadInt(uid);
-               else
-               {
-                   Thread.Sleep(1000);
-                   if (dSelect.writeTS == this.wts)
-                       value = server.ReadPadInt(uid);
-                   else
-                       return -999;
 
-               }
+              TVersion dSelect = getMax(tc);
+              if (dSelect != null)
+              {
+                  if (dSelect.writeTS == this.wts)
+                      value = server.ReadPadInt(uid);
+                  else
+                  {
+                      Thread.Sleep(1000);
+                      if (dSelect.writeTS == this.wts)
+                          value = server.ReadPadInt(uid);
+                      else
+                          return -999;
+
+                  }
+              }
+              else
+                  value = server.ReadPadInt(uid);
            }
            else
                return -999;
@@ -116,23 +123,33 @@ namespace PADIDSTM
 
        public void abortTx(long txID)
        {
+           List<TVersion> toRemove = new List<TVersion>();
            foreach (TVersion tv in tentativeVersions)
            {
                if (tv.writeTS == txID)
-                   tentativeVersions.Remove(tv);
+                   toRemove.Add(tv);
+           }
+           foreach (TVersion tv in toRemove)
+           {
+               tentativeVersions.Remove(tv);
            }
        }
 
        public void commitTx(long txID)
        {
+           List<TVersion> toRemove = new List<TVersion>();
            foreach (TVersion tv in tentativeVersions)
            {
                if (tv.writeTS == txID)
                {
-                   tentativeVersions.Remove(tv);
+                   toRemove.Add(tv);
                    wts = txID;
                    value = tv.versionVal;
                }
+           }
+           foreach (TVersion tv in toRemove)
+           {
+               tentativeVersions.Remove(tv);
            }
        }
     }
