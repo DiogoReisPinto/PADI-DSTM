@@ -29,6 +29,7 @@ namespace MasterServer
         private Dictionary<int, string> padIntLocation = new Dictionary<int, string>();
         private int transactionID = 0;
         private Object tIDLock = new Object();
+        private Object padIntLocationLock = new Object();
         private Form1 form;
 
         public RemoteMaster(Form1 form)
@@ -40,8 +41,16 @@ namespace MasterServer
         {
             string urlServerDest = null;
             //CALL TO THE LOAD BALANCER ALGORITHM 
-            string k = serversLoad.Keys.First();
-            urlServerDest = k;
+            lock (padIntLocationLock)
+            {
+                string location = DiscoverPadInt(uid);
+                if (location != null)   
+                {
+                    string k = serversLoad.Keys.First();
+                    padIntLocation.Add(uid, "UNDEFINED");
+                    urlServerDest = k;
+                }
+            }
             return urlServerDest;
         }
 
@@ -59,7 +68,7 @@ namespace MasterServer
         public string GetTS(int uid)
         {
             //uid of slave server for tie-breaker
-            string timestamp = TimeStamp.GetTimestamp(DateTime.Now) + uid;
+            string timestamp = TimeStamp.GetTimestamp(DateTime.Now) + "#" + uid;
             return timestamp;
         }
 
@@ -73,7 +82,7 @@ namespace MasterServer
 
         public void RegisterNewPadInt(int uid, string serverURL)
         {
-            padIntLocation.Add(uid, serverURL);
+            padIntLocation[uid]= serverURL;
             form.Invoke(new delUpdatePadInt(form.updatePadInts), new Object[] { this.padIntLocation });
             form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
         }

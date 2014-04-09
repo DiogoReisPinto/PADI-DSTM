@@ -16,13 +16,17 @@ namespace PADIDSTM
 
         public static IMaster masterServ;
         public static string transactionTS;
+        public static List<RemotePadInt> visitedPadInts;
 
         public static bool Init() {
+
             TcpChannel channel = new TcpChannel(0);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
                                     typeof(IMaster),
                                 "tcp://localhost:8086/RemoteMaster");
+
+
             return true;
             
         }
@@ -31,12 +35,21 @@ namespace PADIDSTM
             int tID = masterServ.getTransactionID();
             string timeStamp = masterServ.GetTS(tID);
             transactionTS = timeStamp;
+            visitedPadInts = new List<RemotePadInt>();
             return true;
         }
 
         public static bool TxCommit() { return true; }
 
-        public static bool TxAbort() { return true; }
+        public static bool TxAbort() {
+            long tc = Convert.ToInt64(transactionTS.Split('#')[0]);
+            foreach (RemotePadInt rpi in visitedPadInts)
+            {
+                rpi.abortTx(tc);
+            }
+            return true;
+        
+        }
 
         public static bool Status() { 
             masterServ.callStatusOnSlaves();
@@ -71,6 +84,8 @@ namespace PADIDSTM
 
         public static RemotePadInt CreatePadInt(int uid) {
             string url = masterServ.GetLocationNewPadInt(uid);
+            if (url == null)
+                return null;
             ISlave slave = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url);
@@ -81,6 +96,8 @@ namespace PADIDSTM
 
         public static RemotePadInt AccessPadInt(int uid) {
             string url = masterServ.DiscoverPadInt(uid);
+            if (url == null)
+                return null;
             ISlave slave = (ISlave)Activator.GetObject(
                                   typeof(ISlave),
                               url);

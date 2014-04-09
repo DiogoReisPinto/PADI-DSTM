@@ -45,6 +45,7 @@
     <Compile Include="IMaster.cs" />
     <Compile Include="IPadInt.cs" />
     <Compile Include="ISlave.cs" />
+    <Compile Include="TVersion.cs" />
     <Compile Include="TxException.cs" />
     <Compile Include="DSTMLib.cs" />
     <Compile Include="RemotePadInt.cs" />
