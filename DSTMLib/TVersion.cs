@@ -11,11 +11,13 @@ namespace PADIDSTM
         
         public long writeTS;
         public int versionVal;
+        public bool commited;
 
         public TVersion(long wts, int val)
         {
             this.writeTS = wts;
             this.versionVal = val;
+            this.commited = false;
         }
     }
 }

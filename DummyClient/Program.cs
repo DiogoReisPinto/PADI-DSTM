@@ -21,15 +21,12 @@ namespace DummyClient
             Console.WriteLine("AFTER createPadInt");
             PadInt pi_b = DSTMLib.CreatePadInt(1);
             res = DSTMLib.TxCommit();
-
             res = DSTMLib.TxBegin();
             pi_a = DSTMLib.AccessPadInt(0);
             pi_b = DSTMLib.AccessPadInt(1);
             pi_a.Write(36);
             pi_b.Write(37);
             DSTMLib.Status();
-            res = DSTMLib.TxCommit(); 
-            res = DSTMLib.TxBegin();
             Console.WriteLine("a = " + pi_a.Read());
             Console.WriteLine("b = " + pi_b.Read());
             DSTMLib.Status();
@@ -39,7 +36,8 @@ namespace DummyClient
             res = DSTMLib.Recover("tcp://localhost:2001/RemoteSlave");
             res = DSTMLib.Status();
 
-            res = DSTMLib.TxCommit();  
+            res = DSTMLib.TxCommit();
+            Console.Read();
         }
     }
 }

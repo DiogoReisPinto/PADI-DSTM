@@ -80,7 +80,7 @@ namespace SlaveServer
         public int ReadPadInt(int uid)
         {
             while (freezed || failed) { };
-            return padIntObjects[uid].value;
+            return 0;
         }
 
         public RemotePadInt create(int uid)
