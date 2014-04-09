@@ -117,5 +117,18 @@ namespace PADIDSTM
                    tentativeVersions.Remove(tv);
            }
        }
+
+       public void commitTx(long txID)
+       {
+           foreach (TVersion tv in tentativeVersions)
+           {
+               if (tv.writeTS == txID)
+               {
+                   tentativeVersions.Remove(tv);
+                   wts = txID;
+                   value = tv.versionVal;
+               }
+           }
+       }
     }
 }

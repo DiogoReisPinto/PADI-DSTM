@@ -39,7 +39,16 @@ namespace PADIDSTM
             return true;
         }
 
-        public static bool TxCommit() { return true; }
+        public static bool TxCommit()
+        {
+            long tc = Convert.ToInt64(transactionTS.Split('#')[0]);
+            foreach (RemotePadInt rpi in visitedPadInts)
+            {
+                rpi.commitTx(tc);
+            }
+            return true;
+
+        }
 
         public static bool TxAbort() {
             long tc = Convert.ToInt64(transactionTS.Split('#')[0]);
