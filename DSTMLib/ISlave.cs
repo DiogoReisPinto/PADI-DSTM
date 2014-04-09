@@ -3,8 +3,8 @@ namespace PADIDSTM
 {
     public interface ISlave
     {
-        RemotePadInt access(int uid);
-        RemotePadInt create(int uid);
+        RemotePadInt access(int uid,long tid);
+        RemotePadInt create(int uid, long tid);
         void freeze();
         void fail();
         void recover();

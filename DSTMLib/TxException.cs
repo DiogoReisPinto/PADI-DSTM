@@ -6,20 +6,25 @@ using System.Threading.Tasks;
 
 namespace PADIDSTM
 {
-    public class TxException : Exception
+    [Serializable]
+    public class TxException : ApplicationException
     {
-        public TxException()
-        {
-        }
-
+        public string message;
+        
         public TxException(string message)
-            : base(message)
         {
+            this.message = message;
         }
 
-        public TxException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
+        public TxException(System.Runtime.Serialization.SerializationInfo info,
+		System.Runtime.Serialization.StreamingContext context)
+		: base(info, context) {
+            message = info.GetString("message");
+	}
+
+	public override void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {
+		base.GetObjectData(info, context);
+        info.AddValue("message", message);
+	}
     }
 }

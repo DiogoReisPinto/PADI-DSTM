@@ -60,7 +60,7 @@ namespace MasterServer
             foreach (KeyValuePair<int, string> entry in padIntLocation)
             {
                 if (entry.Key == uid)
-                    return url = entry.Value;
+                    url=entry.Value;
             }
             return url;
         }

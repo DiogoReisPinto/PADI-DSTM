@@ -18,6 +18,8 @@ namespace PADIDSTM
         private long wts;
         List<long> rts = new List<long>();
         List<TVersion> tentativeVersions = new List<TVersion>();
+        public bool isCommited;
+        public long creatorTID;
 
         public List<long> Rts
         {
@@ -37,6 +39,7 @@ namespace PADIDSTM
             this.uid = uid;
             this.url = url;
             this.wts = 0;
+            this.isCommited = false;
         }
 
 
@@ -152,6 +155,7 @@ namespace PADIDSTM
                     tv.commited = true;
                 }
             }
+            this.isCommited = true;
 
         }
     }

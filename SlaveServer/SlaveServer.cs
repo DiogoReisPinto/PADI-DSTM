@@ -9,6 +9,7 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting;
 using System.Runtime.Serialization.Formatters;
 using System.Collections;
+using System.Threading;
 
 namespace SlaveServer
 {
@@ -62,13 +63,22 @@ namespace SlaveServer
         public static IMaster masterServ;
 
         
-        public RemotePadInt access(int uid)
+        public RemotePadInt access(int uid,long tid)
         {
             while (freezed || failed) { };
             RemotePadInt req = padIntObjects[uid];
+            if (tid == req.creatorTID)
+                return req;
+            if(!req.isCommited){
+                Thread.Sleep(1000);
+                if (req.isCommited)
+                    return req;
+                else
+                    return null;
+            }
             return req;
-            
         }
+        
 
         public void WritePadInt(int uid, int value)
         {
@@ -83,10 +93,11 @@ namespace SlaveServer
             return 0;
         }
 
-        public RemotePadInt create(int uid)
+        public RemotePadInt create(int uid, long tid)
         {
             while (freezed || failed) { };
             RemotePadInt newPadInt = new RemotePadInt(uid, url);
+            newPadInt.creatorTID = tid;
             padIntObjects.Add(uid, newPadInt);
             masterServ.RegisterNewPadInt(uid, url);
             return newPadInt;

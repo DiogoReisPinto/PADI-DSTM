@@ -112,9 +112,14 @@ namespace Client
 
         private void PadIntWrite_Click(object sender, EventArgs e)
         {
-            int value = Convert.ToInt32(WriteValue.Text);
-            pi.Write(value);
-            log("Wrote value " + value);
-        }
+            if (WriteValue.Text == "")
+                log("Please specify a value to write");
+            else
+            {
+                int value = Convert.ToInt32(WriteValue.Text);
+                pi.Write(value);
+                log("Wrote value " + value);
+            }
+            }
     }
 }
