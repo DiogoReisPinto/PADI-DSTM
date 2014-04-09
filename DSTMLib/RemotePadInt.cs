@@ -65,6 +65,7 @@ namespace PADIDSTM
                 }
                 else
                 {
+                    //WAITING FOR THE DSELECT TO COMMIT
                     Thread.Sleep(1000);
                     if (dSelect.writeTS == this.wts)
                     {

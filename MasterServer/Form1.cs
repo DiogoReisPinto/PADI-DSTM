@@ -1,4 +1,5 @@
 ﻿using System;
+using PADIDSTM;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -62,6 +63,41 @@ namespace MasterServer
                 var listItem = new ListViewItem(padints);
                 this.PadIntLocation.Items.Add(listItem);
             }
+        }
+
+        private void ServerLocationLoad_OnListViewItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            RecoverBtn.Enabled = (ServerLocationLoad.SelectedItems.Count > 0);
+            FreezeBtn.Enabled = (ServerLocationLoad.SelectedItems.Count > 0);
+            FailBtn.Enabled = (ServerLocationLoad.SelectedItems.Count > 0);
+        }
+
+        private void RecoverBtn_Click(object sender, EventArgs e)
+        {
+            string url = ServerLocationLoad.SelectedItems[0].Text;
+            log("Recovering server at " + url);
+            DSTMLib.Recover(url);
+        }
+
+        private void ServerLocationLoad_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            RecoverBtn.Enabled = (ServerLocationLoad.SelectedItems.Count > 0);
+            FreezeBtn.Enabled = (ServerLocationLoad.SelectedItems.Count > 0);
+            FailBtn.Enabled = (ServerLocationLoad.SelectedItems.Count > 0);
+        }
+
+        private void FreezeBtn_Click(object sender, EventArgs e)
+        {
+            string url = ServerLocationLoad.SelectedItems[0].Text;
+            log("Delaying server at " + url);
+            DSTMLib.Freeze(url);
+        }
+
+        private void FailBtn_Click(object sender, EventArgs e)
+        {
+            string url = ServerLocationLoad.SelectedItems[0].Text;
+            log("Crashing server at " + url);
+            DSTMLib.Fail(url);
         }
     }
 }

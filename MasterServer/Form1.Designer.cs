@@ -38,6 +38,9 @@
             this.PadIntLocation = new System.Windows.Forms.ListView();
             this.PadIntID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.LocationPadInt = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.RecoverBtn = new System.Windows.Forms.Button();
+            this.FreezeBtn = new System.Windows.Forms.Button();
+            this.FailBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Log
@@ -70,7 +73,7 @@
             // PadIntLocationLabel
             // 
             this.PadIntLocationLabel.AutoSize = true;
-            this.PadIntLocationLabel.Location = new System.Drawing.Point(490, 200);
+            this.PadIntLocationLabel.Location = new System.Drawing.Point(490, 250);
             this.PadIntLocationLabel.Name = "PadIntLocationLabel";
             this.PadIntLocationLabel.Size = new System.Drawing.Size(90, 13);
             this.PadIntLocationLabel.TabIndex = 5;
@@ -87,6 +90,7 @@
             this.ServerLocationLoad.TabIndex = 6;
             this.ServerLocationLoad.UseCompatibleStateImageBehavior = false;
             this.ServerLocationLoad.View = System.Windows.Forms.View.Details;
+            this.ServerLocationLoad.SelectedIndexChanged += new System.EventHandler(this.ServerLocationLoad_SelectedIndexChanged);
             // 
             // ServerLocation
             // 
@@ -103,9 +107,9 @@
             this.PadIntLocation.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.PadIntID,
             this.LocationPadInt});
-            this.PadIntLocation.Location = new System.Drawing.Point(490, 217);
+            this.PadIntLocation.Location = new System.Drawing.Point(490, 266);
             this.PadIntLocation.Name = "PadIntLocation";
-            this.PadIntLocation.Size = new System.Drawing.Size(344, 305);
+            this.PadIntLocation.Size = new System.Drawing.Size(344, 256);
             this.PadIntLocation.TabIndex = 7;
             this.PadIntLocation.UseCompatibleStateImageBehavior = false;
             this.PadIntLocation.View = System.Windows.Forms.View.Details;
@@ -120,11 +124,47 @@
             this.LocationPadInt.Text = "Location";
             this.LocationPadInt.Width = 268;
             // 
+            // RecoverBtn
+            // 
+            this.RecoverBtn.Enabled = false;
+            this.RecoverBtn.Location = new System.Drawing.Point(536, 206);
+            this.RecoverBtn.Name = "RecoverBtn";
+            this.RecoverBtn.Size = new System.Drawing.Size(75, 23);
+            this.RecoverBtn.TabIndex = 8;
+            this.RecoverBtn.Text = "Recover";
+            this.RecoverBtn.UseVisualStyleBackColor = true;
+            this.RecoverBtn.Click += new System.EventHandler(this.RecoverBtn_Click);
+            // 
+            // FreezeBtn
+            // 
+            this.FreezeBtn.Enabled = false;
+            this.FreezeBtn.Location = new System.Drawing.Point(617, 206);
+            this.FreezeBtn.Name = "FreezeBtn";
+            this.FreezeBtn.Size = new System.Drawing.Size(75, 23);
+            this.FreezeBtn.TabIndex = 9;
+            this.FreezeBtn.Text = "Freeze";
+            this.FreezeBtn.UseVisualStyleBackColor = true;
+            this.FreezeBtn.Click += new System.EventHandler(this.FreezeBtn_Click);
+            // 
+            // FailBtn
+            // 
+            this.FailBtn.Enabled = false;
+            this.FailBtn.Location = new System.Drawing.Point(698, 206);
+            this.FailBtn.Name = "FailBtn";
+            this.FailBtn.Size = new System.Drawing.Size(75, 23);
+            this.FailBtn.TabIndex = 10;
+            this.FailBtn.Text = "Fail";
+            this.FailBtn.UseVisualStyleBackColor = true;
+            this.FailBtn.Click += new System.EventHandler(this.FailBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(846, 532);
+            this.Controls.Add(this.FailBtn);
+            this.Controls.Add(this.FreezeBtn);
+            this.Controls.Add(this.RecoverBtn);
             this.Controls.Add(this.PadIntLocation);
             this.Controls.Add(this.ServerLocationLoad);
             this.Controls.Add(this.PadIntLocationLabel);
@@ -150,6 +190,9 @@
         private System.Windows.Forms.ListView PadIntLocation;
         private System.Windows.Forms.ColumnHeader PadIntID;
         private System.Windows.Forms.ColumnHeader LocationPadInt;
+        private System.Windows.Forms.Button RecoverBtn;
+        private System.Windows.Forms.Button FreezeBtn;
+        private System.Windows.Forms.Button FailBtn;
     }
 }
 

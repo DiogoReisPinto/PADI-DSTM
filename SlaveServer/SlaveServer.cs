@@ -30,7 +30,7 @@ namespace SlaveServer
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
-            props["port"] = 2001;
+            props["port"] = 0;
             TcpChannel channel = new TcpChannel(props, null, provider);
 
             ChannelServices.RegisterChannel(channel, true);

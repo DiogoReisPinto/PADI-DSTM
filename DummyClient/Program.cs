@@ -30,12 +30,6 @@ namespace DummyClient
             Console.WriteLine("a = " + pi_a.Read());
             Console.WriteLine("b = " + pi_b.Read());
             DSTMLib.Status();
-            // The following 3 lines assume
-            res = DSTMLib.Freeze("tcp://localhost:2001/RemoteSlave");
-            res = DSTMLib.Status();
-            res = DSTMLib.Recover("tcp://localhost:2001/RemoteSlave");
-            res = DSTMLib.Status();
-
             res = DSTMLib.TxCommit();
             Console.Read();
         }
