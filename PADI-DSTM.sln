@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyClient", "DummyClient\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSTMLib", "DSTMLib\DSTMLib.csproj", "{E50C866E-6A3C-444F-952C-937FE4BD98AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{2A792EF9-CC79-4C0C-9E00-DB8572D8BC12}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{E50C866E-6A3C-444F-952C-937FE4BD98AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E50C866E-6A3C-444F-952C-937FE4BD98AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E50C866E-6A3C-444F-952C-937FE4BD98AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A792EF9-CC79-4C0C-9E00-DB8572D8BC12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A792EF9-CC79-4C0C-9E00-DB8572D8BC12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A792EF9-CC79-4C0C-9E00-DB8572D8BC12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A792EF9-CC79-4C0C-9E00-DB8572D8BC12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
