@@ -83,6 +83,7 @@ namespace MasterServer
         public void RegisterNewPadInt(int uid, string serverURL)
         {
             padIntLocation[uid]= serverURL;
+            serversLoad[serverURL]++;
             Console.WriteLine("REGISTER New PAD LOCATION: "+padIntLocation[uid]);
             form.Invoke(new delUpdatePadInt(form.updatePadInts), new Object[] { this.padIntLocation });
             form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });

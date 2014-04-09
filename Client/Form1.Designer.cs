@@ -40,17 +40,17 @@
             // 
             // Log
             // 
-            this.Log.Location = new System.Drawing.Point(13, 149);
+            this.Log.Location = new System.Drawing.Point(47, 156);
             this.Log.Multiline = true;
             this.Log.Name = "Log";
-            this.Log.Size = new System.Drawing.Size(798, 533);
+            this.Log.Size = new System.Drawing.Size(304, 526);
             this.Log.TabIndex = 0;
             // 
             // StartEndTransaction
             // 
-            this.StartEndTransaction.Location = new System.Drawing.Point(641, 97);
+            this.StartEndTransaction.Location = new System.Drawing.Point(47, 12);
             this.StartEndTransaction.Name = "StartEndTransaction";
-            this.StartEndTransaction.Size = new System.Drawing.Size(169, 46);
+            this.StartEndTransaction.Size = new System.Drawing.Size(105, 27);
             this.StartEndTransaction.TabIndex = 1;
             this.StartEndTransaction.Text = "StartTransaction";
             this.StartEndTransaction.UseVisualStyleBackColor = true;
@@ -59,9 +59,9 @@
             // CreatePadInt
             // 
             this.CreatePadInt.Enabled = false;
-            this.CreatePadInt.Location = new System.Drawing.Point(188, 37);
+            this.CreatePadInt.Location = new System.Drawing.Point(158, 41);
             this.CreatePadInt.Name = "CreatePadInt";
-            this.CreatePadInt.Size = new System.Drawing.Size(135, 39);
+            this.CreatePadInt.Size = new System.Drawing.Size(118, 26);
             this.CreatePadInt.TabIndex = 2;
             this.CreatePadInt.Text = "Create PadInt";
             this.CreatePadInt.UseVisualStyleBackColor = true;
@@ -70,9 +70,9 @@
             // AccessPadInt
             // 
             this.AccessPadInt.Enabled = false;
-            this.AccessPadInt.Location = new System.Drawing.Point(478, 37);
+            this.AccessPadInt.Location = new System.Drawing.Point(158, 73);
             this.AccessPadInt.Name = "AccessPadInt";
-            this.AccessPadInt.Size = new System.Drawing.Size(135, 39);
+            this.AccessPadInt.Size = new System.Drawing.Size(118, 26);
             this.AccessPadInt.TabIndex = 3;
             this.AccessPadInt.Text = "Access PadInt";
             this.AccessPadInt.UseVisualStyleBackColor = true;
@@ -112,7 +112,7 @@
             // PadIntID
             // 
             this.PadIntID.Enabled = false;
-            this.PadIntID.Location = new System.Drawing.Point(350, 47);
+            this.PadIntID.Location = new System.Drawing.Point(52, 59);
             this.PadIntID.Name = "PadIntID";
             this.PadIntID.Size = new System.Drawing.Size(100, 20);
             this.PadIntID.TabIndex = 7;
@@ -122,7 +122,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(823, 694);
+            this.ClientSize = new System.Drawing.Size(365, 335);
             this.Controls.Add(this.PadIntID);
             this.Controls.Add(this.WriteValue);
             this.Controls.Add(this.PadIntWrite);

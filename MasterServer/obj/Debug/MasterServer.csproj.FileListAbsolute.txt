@@ -10,4 +10,3 @@ C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.Properties.
 C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.csproj.GenerateResource.Cache
 C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.exe
 C:\Users\Diogo\Desktop\PADI-DSTM\MasterServer\obj\Debug\MasterServer.pdb
-C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\bin\Debug\MasterServer.exe.config
