@@ -36,6 +36,7 @@ namespace PADIDSTM
             string timeStamp = masterServ.GetTS(tID);
             transactionTS = timeStamp;
             visitedPadInts = new List<RemotePadInt>();
+            Console.WriteLine("IN DSTMlib :"+transactionTS);
             return true;
         }
 
@@ -91,31 +92,42 @@ namespace PADIDSTM
             return true;  
         }
 
-        public static RemotePadInt CreatePadInt(int uid) {
+        public static PadInt CreatePadInt(int uid) {
             string url = masterServ.GetLocationNewPadInt(uid);
             if (url == null)
                 return null;
+
             ISlave slave = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url);
 
-            RemotePadInt newPadInt = slave.create(uid);
-            return newPadInt;
+            RemotePadInt newRemotePadInt = slave.create(uid);
+            PadInt newPad = new PadInt(newRemotePadInt.uid);
+            return newPad;
         }
 
-        public static RemotePadInt AccessPadInt(int uid) {
-            string url = masterServ.DiscoverPadInt(uid);
+
+        public static PadInt AccessPadInt(int uid) {
+            RemotePadInt newRemotePadInt = AccessRemotePadInt(uid);
+            PadInt newPad = new PadInt(newRemotePadInt.uid);
+            return newPad;
+
+        }
+
+
+        public static RemotePadInt AccessRemotePadInt(int uid) {
+            string url = masterServ.GetLocationNewPadInt(uid);
             if (url == null)
                 return null;
+
             ISlave slave = (ISlave)Activator.GetObject(
-                                  typeof(ISlave),
-                              url);
+                                   typeof(ISlave),
+                               url);
 
-            RemotePadInt pint = slave.access(uid);
-            return pint;
-
+            return slave.access(uid);
+           
         }
-    
+
     }
 
 }

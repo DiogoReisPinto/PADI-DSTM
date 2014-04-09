@@ -43,8 +43,8 @@ namespace MasterServer
             //CALL TO THE LOAD BALANCER ALGORITHM 
             lock (padIntLocationLock)
             {
-                string location = DiscoverPadInt(uid);
-                if (location != null)   
+                urlServerDest = DiscoverPadInt(uid);
+                if (urlServerDest == null)   
                 {
                     string k = serversLoad.Keys.First();
                     padIntLocation.Add(uid, "UNDEFINED");
@@ -60,7 +60,7 @@ namespace MasterServer
             foreach (KeyValuePair<int, string> entry in padIntLocation)
             {
                 if (entry.Key == uid)
-                    url = entry.Value;
+                    return url = entry.Value;
             }
             return url;
         }
@@ -83,6 +83,7 @@ namespace MasterServer
         public void RegisterNewPadInt(int uid, string serverURL)
         {
             padIntLocation[uid]= serverURL;
+            Console.WriteLine("REGISTER New PAD LOCATION: "+padIntLocation[uid]);
             form.Invoke(new delUpdatePadInt(form.updatePadInts), new Object[] { this.padIntLocation });
             form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
         }

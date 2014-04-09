@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace PADIDSTM
 {
-    public class RemotePadInt : MarshalByRefObject, IPadInt
+    public class RemotePadInt : MarshalByRefObject
     {
         public int uid;
         public int value;
@@ -42,8 +42,7 @@ namespace PADIDSTM
 
        
 
-       public int Read(){
-           string ts = DSTMLib.transactionTS;
+       public int Read(string ts){
            long tc = Convert.ToInt64(ts.Split('#')[0]);
            //NOT USED FOR CHECKPOINT IMPLEMENTATION
            int tieBreaker = Convert.ToInt32(ts.Split('#')[1]);
@@ -61,33 +60,39 @@ namespace PADIDSTM
                {
                    Thread.Sleep(1000);
                    if (dSelect.writeTS == this.wts)
-                       value=server.ReadPadInt(uid);
+                       value = server.ReadPadInt(uid);
                    else
-                       DSTMLib.TxAbort();
+                       return -999;
 
                }
            }
            else
-               DSTMLib.TxAbort();
+               return -999;
            return value;
     }
 
-       public void Write(int value){
-           string ts = DSTMLib.transactionTS;
-           long tc = Convert.ToInt64(ts.Split('#')[0]);
+       public bool Write(int value, string ts){
+           Console.WriteLine("uid:" + uid +" ts: "+ts);
+           string[] txID = ts.Split('#');
+
+           long tc = Convert.ToInt64(txID[0]);
            //NOT USED FOR CHECKPOINT IMPLEMENTATION
            int tieBreaker = Convert.ToInt32(ts.Split('#')[1]);
            ISlave server = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url);
-           long maxD = rts.Max();
+           long maxD = -999;
+           if(rts.Count >0)
+               maxD = rts.Max();
+
            if (tc >= maxD && tc > wts)
            {
                tentativeVersions.Add(new TVersion(tc, value));
-               DSTMLib.visitedPadInts.Add(this);
+               //DSTMLib.visitedPadInts.Add(this);
+               return true;
            }
            else
-               DSTMLib.TxAbort();
+               return false;
 
            //server.WritePadInt(uid, value);
 

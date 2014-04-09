@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PADIDSTM
 {
-    class PadInt : IPadInt
+    public class PadInt : IPadInt
     {
 
         int uid;
@@ -18,14 +18,25 @@ namespace PADIDSTM
         
         public void Write(int value)
         {
-            RemotePadInt RpadInt = DSTMLib.AccessPadInt(uid);
-            RpadInt.Write(value);
+            RemotePadInt RpadInt = DSTMLib.AccessRemotePadInt(uid);
+            bool success = RpadInt.Write(value, DSTMLib.transactionTS);
+            if (success)
+            {
+                DSTMLib.visitedPadInts.Add(RpadInt);
+            }
+            else {
+                DSTMLib.TxAbort();
+            }
         }
 
         public int Read()
         {
-            RemotePadInt RpadInt = DSTMLib.AccessPadInt(uid);
-            int val = RpadInt.Read();
+            RemotePadInt RpadInt = DSTMLib.AccessRemotePadInt(uid);
+            int val = RpadInt.Read(DSTMLib.transactionTS);
+            if (val == -999) {
+                DSTMLib.TxAbort();
+            } 
+
             return val;
         }
     }

@@ -17,9 +17,9 @@ namespace DummyClient
             Console.WriteLine("INITIALIZED");
             res = DSTMLib.TxBegin();
             Console.WriteLine("AFTER BEGIN");
-            RemotePadInt pi_a = DSTMLib.CreatePadInt(0);
+            PadInt pi_a = DSTMLib.CreatePadInt(0);
             Console.WriteLine("AFTER createPadInt");
-            RemotePadInt pi_b = DSTMLib.CreatePadInt(1);
+            PadInt pi_b = DSTMLib.CreatePadInt(1);
             res = DSTMLib.TxCommit();
 
             res = DSTMLib.TxBegin();
