@@ -1,0 +1,5 @@
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DSTMLib\bin\Debug\DSTMLib.dll
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DSTMLib\bin\Debug\DSTMLib.pdb
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DSTMLib\obj\Debug\DSTMLib.csprojResolveAssemblyReference.cache
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DSTMLib\obj\Debug\DSTMLib.dll
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DSTMLib\obj\Debug\DSTMLib.pdb

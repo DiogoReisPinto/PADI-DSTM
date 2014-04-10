@@ -1,0 +1,11 @@
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\bin\Debug\Client.exe.config
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\bin\Debug\Client.exe
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\bin\Debug\Client.pdb
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\bin\Debug\DSTMLib.dll
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\bin\Debug\DSTMLib.pdb
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\obj\Debug\Client.ClientForm.resources
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\obj\Debug\Client.Properties.Resources.resources
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\obj\Debug\Client.csproj.GenerateResource.Cache
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\obj\Debug\Client.exe
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\obj\Debug\Client.pdb
