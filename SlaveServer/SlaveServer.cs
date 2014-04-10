@@ -80,18 +80,12 @@ namespace SlaveServer
         }
         
 
-        public void WritePadInt(int uid, int value)
+        public void checkStatus()
         {
             while (freezed || failed) { };
-            padIntObjects[uid].value = value;
             
         }
 
-        public int ReadPadInt(int uid)
-        {
-            while (freezed || failed) { };
-            return 0;
-        }
 
         public RemotePadInt create(int uid, long tid)
         {

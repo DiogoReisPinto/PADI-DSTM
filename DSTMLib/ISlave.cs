@@ -9,9 +9,7 @@ namespace PADIDSTM
         void fail();
         void recover();
         void status();
-
-        int ReadPadInt(int uid);
+        void checkStatus();
         void removePadInt(int id);
-        void WritePadInt(int uid, int value);
     }
 }

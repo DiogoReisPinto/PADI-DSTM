@@ -52,9 +52,9 @@ namespace Client
         private void setPadIntButtons()
         {
             if(transaction)
-                StartEndTransaction.Text = "End Transaction";
+                StartEndTransaction.Text = "Commit";
             else
-                StartEndTransaction.Text = "Begin Transaction";
+                StartEndTransaction.Text = "Begin";
             CreatePadInt.Enabled = transaction;
             AccessPadInt.Enabled = transaction;
             PadIntID.Enabled = transaction;
@@ -146,6 +146,7 @@ namespace Client
                     int value = Convert.ToInt32(WriteValue.Text);
                     pi.Write(value);
                     log("Wrote value " + value);
+                    WriteValue.Clear();
                 }
                 catch (TxException txe)
                 {

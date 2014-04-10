@@ -40,11 +40,12 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.AbortTxBtn = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // Log
             // 
-            this.Log.Location = new System.Drawing.Point(31, 151);
+            this.Log.Location = new System.Drawing.Point(27, 163);
             this.Log.Multiline = true;
             this.Log.Name = "Log";
             this.Log.Size = new System.Drawing.Size(304, 160);
@@ -52,18 +53,18 @@
             // 
             // StartEndTransaction
             // 
-            this.StartEndTransaction.Location = new System.Drawing.Point(246, 3);
+            this.StartEndTransaction.Location = new System.Drawing.Point(175, 36);
             this.StartEndTransaction.Name = "StartEndTransaction";
-            this.StartEndTransaction.Size = new System.Drawing.Size(105, 27);
+            this.StartEndTransaction.Size = new System.Drawing.Size(75, 22);
             this.StartEndTransaction.TabIndex = 1;
-            this.StartEndTransaction.Text = "StartTransaction";
+            this.StartEndTransaction.Text = "Begin";
             this.StartEndTransaction.UseVisualStyleBackColor = true;
             this.StartEndTransaction.Click += new System.EventHandler(this.StartEndTransaction_Click);
             // 
             // CreatePadInt
             // 
             this.CreatePadInt.Enabled = false;
-            this.CreatePadInt.Location = new System.Drawing.Point(260, 65);
+            this.CreatePadInt.Location = new System.Drawing.Point(256, 79);
             this.CreatePadInt.Name = "CreatePadInt";
             this.CreatePadInt.Size = new System.Drawing.Size(75, 22);
             this.CreatePadInt.TabIndex = 2;
@@ -74,7 +75,7 @@
             // AccessPadInt
             // 
             this.AccessPadInt.Enabled = false;
-            this.AccessPadInt.Location = new System.Drawing.Point(179, 65);
+            this.AccessPadInt.Location = new System.Drawing.Point(175, 79);
             this.AccessPadInt.Name = "AccessPadInt";
             this.AccessPadInt.Size = new System.Drawing.Size(75, 22);
             this.AccessPadInt.TabIndex = 3;
@@ -85,7 +86,7 @@
             // PadIntRead
             // 
             this.PadIntRead.Enabled = false;
-            this.PadIntRead.Location = new System.Drawing.Point(179, 108);
+            this.PadIntRead.Location = new System.Drawing.Point(175, 122);
             this.PadIntRead.Name = "PadIntRead";
             this.PadIntRead.Size = new System.Drawing.Size(75, 23);
             this.PadIntRead.TabIndex = 4;
@@ -96,7 +97,7 @@
             // PadIntWrite
             // 
             this.PadIntWrite.Enabled = false;
-            this.PadIntWrite.Location = new System.Drawing.Point(260, 108);
+            this.PadIntWrite.Location = new System.Drawing.Point(256, 122);
             this.PadIntWrite.Name = "PadIntWrite";
             this.PadIntWrite.Size = new System.Drawing.Size(75, 23);
             this.PadIntWrite.TabIndex = 5;
@@ -107,7 +108,7 @@
             // WriteValue
             // 
             this.WriteValue.Enabled = false;
-            this.WriteValue.Location = new System.Drawing.Point(36, 111);
+            this.WriteValue.Location = new System.Drawing.Point(32, 125);
             this.WriteValue.Name = "WriteValue";
             this.WriteValue.Size = new System.Drawing.Size(100, 20);
             this.WriteValue.TabIndex = 6;
@@ -116,7 +117,7 @@
             // PadIntID
             // 
             this.PadIntID.Enabled = false;
-            this.PadIntID.Location = new System.Drawing.Point(36, 67);
+            this.PadIntID.Location = new System.Drawing.Point(32, 81);
             this.PadIntID.Name = "PadIntID";
             this.PadIntID.Size = new System.Drawing.Size(100, 20);
             this.PadIntID.TabIndex = 7;
@@ -125,7 +126,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(36, 53);
+            this.label1.Location = new System.Drawing.Point(32, 67);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(26, 13);
             this.label1.TabIndex = 8;
@@ -134,7 +135,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(36, 94);
+            this.label2.Location = new System.Drawing.Point(32, 108);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(34, 13);
             this.label2.TabIndex = 9;
@@ -144,7 +145,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Gautami", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(12, 12);
+            this.label3.Location = new System.Drawing.Point(9, 4);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(228, 32);
             this.label3.TabIndex = 10;
@@ -153,19 +154,30 @@
             // AbortTxBtn
             // 
             this.AbortTxBtn.Enabled = false;
-            this.AbortTxBtn.Location = new System.Drawing.Point(246, 36);
+            this.AbortTxBtn.Location = new System.Drawing.Point(256, 36);
             this.AbortTxBtn.Name = "AbortTxBtn";
-            this.AbortTxBtn.Size = new System.Drawing.Size(105, 27);
+            this.AbortTxBtn.Size = new System.Drawing.Size(75, 22);
             this.AbortTxBtn.TabIndex = 11;
-            this.AbortTxBtn.Text = "AbortTransaction";
+            this.AbortTxBtn.Text = "Abort";
             this.AbortTxBtn.UseVisualStyleBackColor = true;
             this.AbortTxBtn.Click += new System.EventHandler(this.AbortTxBtn_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(54, 41);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(78, 13);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "Transaction:";
             // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(365, 335);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.AbortTxBtn);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -199,6 +211,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button AbortTxBtn;
+        private System.Windows.Forms.Label label4;
     }
 }
 

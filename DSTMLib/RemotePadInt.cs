@@ -59,11 +59,12 @@ namespace PADIDSTM
                 if (dSelect == null)
                 {
                     rts.Add(tc);
-                    return server.ReadPadInt(uid);
+                    server.checkStatus();
+                    return 0;
                 }
                 if (dSelect.commited || dSelect.writeTS == tc)
                 {
-                    server.ReadPadInt(uid);//to block
+                    server.checkStatus();//to block
                     value = dSelect.versionVal;
                     rts.Add(tc);
                 }
@@ -73,7 +74,7 @@ namespace PADIDSTM
                     Thread.Sleep(4000);
                     if (dSelect.writeTS == this.wts)
                     {
-                        server.ReadPadInt(uid);//to block
+                        server.checkStatus();//to block
                         value = dSelect.versionVal;
                         rts.Add(tc);
                     }
@@ -104,6 +105,7 @@ namespace PADIDSTM
                 maxD = rts.Max();
             if (tc >= maxD && tc > wts)
             {
+                server.checkStatus();
                 tentativeVersions.Add(new TVersion(tc, value));
                 this.value = value;
                 return true;

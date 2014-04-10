@@ -16,6 +16,7 @@ namespace PADIDSTM
 
         public static IMaster masterServ;
         public static string transactionTS;
+        public static long tsValue;
         public static List<RemotePadInt> visitedPadInts;
         public static List<RemotePadInt> createdPadInts;
 
@@ -36,33 +37,32 @@ namespace PADIDSTM
             int tID = masterServ.getTransactionID();
             string timeStamp = masterServ.GetTS(tID);
             transactionTS = timeStamp;
+            tsValue = Convert.ToInt64(transactionTS.Split('#')[0]);
             visitedPadInts = new List<RemotePadInt>();
             createdPadInts = new List<RemotePadInt>();
-            Console.WriteLine("IN DSTMlib :"+transactionTS);
+            Console.WriteLine("IN DSTMlib: "+transactionTS);
             return true;
         }
 
         public static bool TxCommit()
         {
-            long tc = Convert.ToInt64(transactionTS.Split('#')[0]);
             foreach (RemotePadInt rpi in visitedPadInts)
             {
-                rpi.commitTx(tc);
+                rpi.commitTx(tsValue);
             }
             foreach (RemotePadInt rpi in createdPadInts)
             {
-                rpi.commitPadInt(tc);
+                rpi.commitPadInt(tsValue);
             }
             return true;
 
         }
 
         public static bool TxAbort() {
-            long tc = Convert.ToInt64(transactionTS.Split('#')[0]);
             List<int> UIDsToRemove = new List<int>();
             foreach (RemotePadInt rpi in visitedPadInts)
             {
-                rpi.abortTx(tc);
+                rpi.abortTx(tsValue);
             }
             foreach (RemotePadInt rpi in createdPadInts)
             {
@@ -112,8 +112,7 @@ namespace PADIDSTM
             ISlave slave = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url);
-            long tid = Convert.ToInt64(transactionTS.Split('#')[0]);
-            RemotePadInt newRemotePadInt = slave.create(uid,tid);
+            RemotePadInt newRemotePadInt = slave.create(uid,tsValue);
             PadInt newPad = new PadInt(newRemotePadInt.uid);
             createdPadInts.Add(newRemotePadInt);
             return newPad;
@@ -133,6 +132,7 @@ namespace PADIDSTM
 
         public static RemotePadInt AccessRemotePadInt(int uid) {
             string url = masterServ.DiscoverPadInt(uid);
+            //UNDEFINED Check if really neededs
             if (url == null|| url=="UNDEFINED")
                 return null;
             Console.WriteLine(url);
@@ -140,8 +140,7 @@ namespace PADIDSTM
             ISlave slave = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url);
-            long tid = Convert.ToInt64(transactionTS.Split('#')[0]);
-            RemotePadInt retPadInt = slave.access(uid,tid);
+            RemotePadInt retPadInt = slave.access(uid,tsValue);
             return retPadInt;
         }
     }
