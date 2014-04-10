@@ -57,11 +57,15 @@ namespace PADIDSTM
             {
                 TVersion dSelect = getMax(tc);
                 if (dSelect == null)
+                {
+                    rts.Add(tc);
                     return server.ReadPadInt(uid);
+                }
                 if (dSelect.commited || dSelect.writeTS == tc)
                 {
-                    server.ReadPadInt(uid);
+                    server.ReadPadInt(uid);//to block
                     value = dSelect.versionVal;
+                    rts.Add(tc);
                 }
                 else
                 {
@@ -69,8 +73,9 @@ namespace PADIDSTM
                     Thread.Sleep(1000);
                     if (dSelect.writeTS == this.wts)
                     {
-                        server.ReadPadInt(uid);
+                        server.ReadPadInt(uid);//to block
                         value = dSelect.versionVal;
+                        rts.Add(tc);
                     }
                     else
                         throw new TxException("Timeout when waiting for a write commit.");
@@ -139,12 +144,10 @@ namespace PADIDSTM
 
         public void commitTx(long txID)
         {
-            List<TVersion> toRemove = new List<TVersion>();
             foreach (TVersion tv in tentativeVersions)
             {
                 if (tv.writeTS == txID)
                 {
-                    toRemove.Add(tv);
                     wts = txID;
                     value = tv.versionVal;
                     tv.commited = true;

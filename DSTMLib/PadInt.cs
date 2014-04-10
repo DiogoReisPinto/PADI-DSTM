@@ -38,7 +38,7 @@ namespace PADIDSTM
                 val = RpadInt.Read(DSTMLib.transactionTS);
             }catch(TxException e){
                 DSTMLib.TxAbort();
-                throw e;
+                throw new Exception();
             } 
 
             return val;
