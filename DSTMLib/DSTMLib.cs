@@ -59,10 +59,16 @@ namespace PADIDSTM
 
         public static bool TxAbort() {
             long tc = Convert.ToInt64(transactionTS.Split('#')[0]);
+            List<int> UIDsToRemove = new List<int>();
             foreach (RemotePadInt rpi in visitedPadInts)
             {
                 rpi.abortTx(tc);
             }
+            foreach (RemotePadInt rpi in createdPadInts)
+            {
+                UIDsToRemove.Add(rpi.uid);
+            }
+            masterServ.removeUID(UIDsToRemove);
             return true;
         
         }

@@ -29,14 +29,14 @@ namespace Client
             if (!transaction)
             {
                 DSTMLib.TxBegin();
-                StartEndTransaction.Text = "End Transaction";
+                
                 transaction = true;
                 log("Transaction started");
             }
             else
             {
                 DSTMLib.TxCommit();
-                StartEndTransaction.Text = "Begin Transaction";
+                
                 transaction = false;
                 log("Transaction commited");
                 setAccessButtons(false);
@@ -46,14 +46,19 @@ namespace Client
 
         private void log(string logMessage)
         {
-            Log.Text += logMessage + "\r\n";
+            Log.AppendText(logMessage + "\r\n");
         }
 
         private void setPadIntButtons()
         {
+            if(transaction)
+                StartEndTransaction.Text = "End Transaction";
+            else
+                StartEndTransaction.Text = "Begin Transaction";
             CreatePadInt.Enabled = transaction;
             AccessPadInt.Enabled = transaction;
             PadIntID.Enabled = transaction;
+            AbortTxBtn.Enabled = transaction;
         }
 
         private void CreatePadInt_Click(object sender, EventArgs e)
@@ -117,19 +122,49 @@ namespace Client
 
         private void PadIntRead_Click(object sender, EventArgs e)
         {
+            try{
             log("Read value " + pi.Read());
+            }
+            catch (TxException txe)
+            {
+                transaction = false;
+                log(txe.message);
+                log("Transaction aborted");
+                setPadIntButtons();
+                setAccessButtons(false);
+            }
         }
 
         private void PadIntWrite_Click(object sender, EventArgs e)
         {
-            if (WriteValue.Text == "")
+            if (string.IsNullOrWhiteSpace(WriteValue.Text))
                 log("Please specify a value to write");
             else
             {
-                int value = Convert.ToInt32(WriteValue.Text);
-                pi.Write(value);
-                log("Wrote value " + value);
+                try
+                {
+                    int value = Convert.ToInt32(WriteValue.Text);
+                    pi.Write(value);
+                    log("Wrote value " + value);
+                }
+                catch (TxException txe)
+                {
+                    transaction = false;
+                    log(txe.message);
+                    log("Transaction aborted");
+                    setPadIntButtons();
+                    setAccessButtons(false);
+                }
             }
+        }
+
+        private void AbortTxBtn_Click(object sender, EventArgs e)
+        {
+            DSTMLib.TxAbort();
+            transaction = false;
+            log("Transaction aborted");
+            setPadIntButtons();
+            setAccessButtons(false);
         }
     }
 }

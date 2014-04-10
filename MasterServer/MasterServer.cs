@@ -126,6 +126,31 @@ namespace MasterServer
             }
         }
 
+        public void removeUID(List<int> UIDsToRemove)
+        {
+            foreach (int id in UIDsToRemove)
+            {
+                string url = padIntLocation[id];
+                serversLoad[url]--;
+                padIntLocation.Remove(id);
+                ISlave server = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               url);
+                server.removePadInt(id);
+            }
+
+            form.Invoke(new delUpdatePadInt(form.updatePadInts), new Object[] { this.padIntLocation });
+            form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
+           
+        }
+
+        public override object InitializeLifetimeService()
+        {
+
+            return null;
+
+        }
+
 
     }
 
@@ -136,4 +161,6 @@ namespace MasterServer
             return value.ToString("yyyyMMddHHmmssffff");
         }
     }
+
+    
 }

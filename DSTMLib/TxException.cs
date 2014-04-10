@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace PADIDSTM
 {
     [Serializable]
-    public class TxException : ApplicationException
+    public class TxException : ApplicationException 
     {
         public string message;
         
@@ -22,6 +23,8 @@ namespace PADIDSTM
             message = info.GetString("message");
 	}
 
+        [SecurityPermissionAttribute(SecurityAction.Demand,
+SerializationFormatter = true)]
 	public override void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) {
 		base.GetObjectData(info, context);
         info.AddValue("message", message);

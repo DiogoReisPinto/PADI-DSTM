@@ -39,6 +39,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.AbortTxBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Log
@@ -51,7 +52,7 @@
             // 
             // StartEndTransaction
             // 
-            this.StartEndTransaction.Location = new System.Drawing.Point(246, 12);
+            this.StartEndTransaction.Location = new System.Drawing.Point(246, 3);
             this.StartEndTransaction.Name = "StartEndTransaction";
             this.StartEndTransaction.Size = new System.Drawing.Size(105, 27);
             this.StartEndTransaction.TabIndex = 1;
@@ -149,11 +150,23 @@
             this.label3.TabIndex = 10;
             this.label3.Text = "PADI-DSTM Client Application";
             // 
+            // AbortTxBtn
+            // 
+            this.AbortTxBtn.Enabled = false;
+            this.AbortTxBtn.Location = new System.Drawing.Point(246, 36);
+            this.AbortTxBtn.Name = "AbortTxBtn";
+            this.AbortTxBtn.Size = new System.Drawing.Size(105, 27);
+            this.AbortTxBtn.TabIndex = 11;
+            this.AbortTxBtn.Text = "AbortTransaction";
+            this.AbortTxBtn.UseVisualStyleBackColor = true;
+            this.AbortTxBtn.Click += new System.EventHandler(this.AbortTxBtn_Click);
+            // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(365, 335);
+            this.Controls.Add(this.AbortTxBtn);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -185,6 +198,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button AbortTxBtn;
     }
 }
 

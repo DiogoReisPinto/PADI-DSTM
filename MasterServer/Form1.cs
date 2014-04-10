@@ -42,7 +42,7 @@ namespace MasterServer
 
         public void log(string logEntry)
         {
-            Log.Text += logEntry + "\r\n";
+            Log.AppendText(logEntry + "\r\n");
         }
 
         public void updateServerLoad(Dictionary<string, int> serversLoad)

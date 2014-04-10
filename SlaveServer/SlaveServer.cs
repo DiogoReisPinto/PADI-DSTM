@@ -135,6 +135,17 @@ namespace SlaveServer
             }
         }
 
+        public override object InitializeLifetimeService()
+        {
+
+            return null;
+
+        }
+
+        public void removePadInt(int id)
+        {
+            padIntObjects.Remove(id);
+        }
     }
 
 }

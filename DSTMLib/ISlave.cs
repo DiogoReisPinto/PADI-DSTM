@@ -11,7 +11,7 @@ namespace PADIDSTM
         void status();
 
         int ReadPadInt(int uid);
-
+        void removePadInt(int id);
         void WritePadInt(int uid, int value);
     }
 }

@@ -70,7 +70,7 @@ namespace PADIDSTM
                 else
                 {
                     //WAITING FOR THE DSELECT TO COMMIT
-                    Thread.Sleep(1000);
+                    Thread.Sleep(4000);
                     if (dSelect.writeTS == this.wts)
                     {
                         server.ReadPadInt(uid);//to block

@@ -2,6 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <StartAction>Program</StartAction>
-    <StartProgram>C:\Users\Andre\Documents\GitHub\PADI-DSTM\Client\bin\Debug\Client.exe</StartProgram>
+    <StartProgram>z:\Desktop\PADI-DSTM\Client\bin\Debug\Client.exe</StartProgram>
   </PropertyGroup>
 </Project>
