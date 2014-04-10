@@ -1,0 +1,10 @@
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\bin\Debug\DummyClient.exe.config
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\bin\Debug\DummyClient.exe
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\bin\Debug\DummyClient.pdb
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\bin\Debug\DSTMLib.dll
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\bin\Debug\DSTMLib.pdb
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\obj\Debug\DummyClient.csprojResolveAssemblyReference.cache
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\obj\Debug\DummyClient.Properties.Resources.resources
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\obj\Debug\DummyClient.csproj.GenerateResource.Cache
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\obj\Debug\DummyClient.exe
+C:\Users\Andre\Documents\GitHub\PADI-DSTM\DummyClient\obj\Debug\DummyClient.pdb

@@ -51,7 +51,7 @@ namespace PADIDSTM
             }
             foreach (RemotePadInt rpi in createdPadInts)
             {
-                rpi.commitTx(tc);
+                rpi.commitPadInt(tc);
             }
             return true;
 
@@ -136,15 +136,7 @@ namespace PADIDSTM
                                url);
             long tid = Convert.ToInt64(transactionTS.Split('#')[0]);
             RemotePadInt retPadInt = slave.access(uid,tid);
-            if (retPadInt == null)
-            {
-                return null;
-            }
-            else
-                return retPadInt;
-           
+            return retPadInt;
         }
-
     }
-
 }

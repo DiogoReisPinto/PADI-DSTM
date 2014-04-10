@@ -26,15 +26,19 @@ namespace PADIDSTM
             }
             else {
                 DSTMLib.TxAbort();
+                throw new TxException("Write canceled because value to write is outdated");
             }
         }
 
         public int Read()
         {
             RemotePadInt RpadInt = DSTMLib.AccessRemotePadInt(uid);
-            int val = RpadInt.Read(DSTMLib.transactionTS);
-            if (val == -999) {
+            int val;
+            try{
+                val = RpadInt.Read(DSTMLib.transactionTS);
+            }catch(TxException e){
                 DSTMLib.TxAbort();
+                throw e;
             } 
 
             return val;

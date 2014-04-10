@@ -1,19 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterServer", "MasterServer\MasterServer.csproj", "{7C714594-22F4-4B8D-97F5-9B9D8AA60A8D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlaveServer", "SlaveServer\SlaveServer.csproj", "{BAF696B7-164A-4D8B-8981-D6033171DBC0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyClient", "DummyClient\DummyClient.csproj", "{8346B18D-2E3C-47EF-9415-7B2F72735126}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSTMLib", "DSTMLib\DSTMLib.csproj", "{E50C866E-6A3C-444F-952C-937FE4BD98AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{2A792EF9-CC79-4C0C-9E00-DB8572D8BC12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client2", "Project1\Client2.csproj", "{DDF3FD04-EAA8-419B-8BE4-A427EC7C9E04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlaveServer2", "SlaveServer2\SlaveServer2.csproj", "{D53A8AC6-D1B2-47F8-8FC2-E51A5920E741}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +27,6 @@ Global
 		{BAF696B7-164A-4D8B-8981-D6033171DBC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAF696B7-164A-4D8B-8981-D6033171DBC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAF696B7-164A-4D8B-8981-D6033171DBC0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8346B18D-2E3C-47EF-9415-7B2F72735126}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8346B18D-2E3C-47EF-9415-7B2F72735126}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8346B18D-2E3C-47EF-9415-7B2F72735126}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8346B18D-2E3C-47EF-9415-7B2F72735126}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E50C866E-6A3C-444F-952C-937FE4BD98AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E50C866E-6A3C-444F-952C-937FE4BD98AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E50C866E-6A3C-444F-952C-937FE4BD98AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -44,6 +38,9 @@ Global
 		{DDF3FD04-EAA8-419B-8BE4-A427EC7C9E04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DDF3FD04-EAA8-419B-8BE4-A427EC7C9E04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDF3FD04-EAA8-419B-8BE4-A427EC7C9E04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D53A8AC6-D1B2-47F8-8FC2-E51A5920E741}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D53A8AC6-D1B2-47F8-8FC2-E51A5920E741}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D53A8AC6-D1B2-47F8-8FC2-E51A5920E741}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

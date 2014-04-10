@@ -44,14 +44,30 @@ namespace MasterServer
             lock (padIntLocationLock)
             {
                 urlServerDest = DiscoverPadInt(uid);
-                if (urlServerDest == null)   
+                if (urlServerDest == null)
                 {
-                    string k = serversLoad.Keys.First();
+                    urlServerDest = getBestSlave();
                     padIntLocation.Add(uid, "UNDEFINED");
-                    urlServerDest = k;
+                }
+                else {
+                    urlServerDest = null;
                 }
             }
             return urlServerDest;
+        }
+
+        private string getBestSlave()
+        {
+            string url = null;
+            int maxLoad = Int32.MaxValue;
+            foreach (string slaveUrl in serversLoad.Keys) {
+                int load = serversLoad[slaveUrl];
+                if (load < maxLoad) {
+                    url = slaveUrl;
+                    maxLoad = load;
+                }
+            }
+            return url;
         }
 
         public string DiscoverPadInt(int uid)

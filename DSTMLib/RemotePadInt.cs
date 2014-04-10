@@ -21,6 +21,7 @@ namespace PADIDSTM
         public bool isCommited;
         public long creatorTID;
 
+
         public List<long> Rts
         {
             get { return rts; }
@@ -42,10 +43,6 @@ namespace PADIDSTM
             this.isCommited = false;
         }
 
-
-
-
-
         public int Read(string ts)
         {
             long tc = Convert.ToInt64(ts.Split('#')[0]);
@@ -55,7 +52,7 @@ namespace PADIDSTM
                                     typeof(ISlave),
                                 url);
             //JUST FOR INITIALIZING. WILL ALWAYS BE OVERRIDED OR TRANSACTION WILL ABORT
-            int value = -999;
+            int value;
             if (tc > this.wts)
             {
                 TVersion dSelect = getMax(tc);
@@ -76,12 +73,13 @@ namespace PADIDSTM
                         value = dSelect.versionVal;
                     }
                     else
-                        return -999;
+                        throw new TxException("Timeout when waiting for a write commit.");
 
                 }
             }
             else
-                return -999;
+                throw new TxException("Reading canceled because value is outdated");
+
             return value;
         }
 
@@ -96,10 +94,9 @@ namespace PADIDSTM
             ISlave server = (ISlave)Activator.GetObject(
                                     typeof(ISlave),
                                 url);
-            long maxD = -999;
+            long maxD = Int64.MinValue;
             if (rts.Count > 0)
                 maxD = rts.Max();
-
             if (tc >= maxD && tc > wts)
             {
                 tentativeVersions.Add(new TVersion(tc, value));
@@ -108,8 +105,6 @@ namespace PADIDSTM
             }
             else
                 return false;
-
-
         }
 
         private TVersion getMax(long ts)
@@ -155,8 +150,10 @@ namespace PADIDSTM
                     tv.commited = true;
                 }
             }
-            this.isCommited = true;
+        }
 
+        public void commitPadInt(long txID) {
+            this.isCommited = true;
         }
     }
 }

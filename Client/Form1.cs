@@ -20,6 +20,7 @@ namespace Client
         public ClientForm()
         {
             InitializeComponent();
+            Log.ScrollBars = ScrollBars.Vertical; 
             DSTMLib.Init();
         }
 
@@ -60,8 +61,11 @@ namespace Client
             if (!string.IsNullOrWhiteSpace(PadIntID.Text))
             {
                 int id = Convert.ToInt32(PadIntID.Text);
-                DSTMLib.CreatePadInt(id);
-                log("PadInt " + id + " created");
+                PadInt newPad = DSTMLib.CreatePadInt(id);
+                if(newPad!=null)
+                    log("PadInt " + id + " created");
+                else
+                    log("PadInt " + id + " already exists");
                 PadIntID.Clear();
                 setAccessButtons(false);
             }
@@ -88,9 +92,15 @@ namespace Client
             {
                 int id = Convert.ToInt32(PadIntID.Text);
                 pi = DSTMLib.AccessPadInt(id);
-                log("Accessing PadInt " + id);
-                PadIntID.Clear();
-                setAccessButtons(true);
+                if (pi != null)
+                {
+                    log("Accessing PadInt " + id);
+                    PadIntID.Clear();
+                    setAccessButtons(true);
+                }
+                else {
+                    log("Cannot access PadInt " + id);
+                }
             }
             else
             {
@@ -120,6 +130,6 @@ namespace Client
                 pi.Write(value);
                 log("Wrote value " + value);
             }
-            }
+        }
     }
 }

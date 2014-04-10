@@ -23,9 +23,11 @@ namespace MasterServer
         public Form1()
         {
             InitializeComponent();
+
             TcpChannel channel = new TcpChannel(8086);
             ChannelServices.RegisterChannel(channel, true);
             RemoteMaster master = new RemoteMaster(this);
+            DSTMLib.masterServ = master; 
             string start = "Starting Master Server on port: " + 8086;
             log(start);
 
@@ -98,6 +100,12 @@ namespace MasterServer
             string url = ServerLocationLoad.SelectedItems[0].Text;
             log("Crashing server at " + url);
             DSTMLib.Fail(url);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            log("Dumping Information on slaves");
+            DSTMLib.Status();
         }
     }
 }

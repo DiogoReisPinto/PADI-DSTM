@@ -41,6 +41,7 @@
             this.RecoverBtn = new System.Windows.Forms.Button();
             this.FreezeBtn = new System.Windows.Forms.Button();
             this.FailBtn = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Log
@@ -127,7 +128,7 @@
             // RecoverBtn
             // 
             this.RecoverBtn.Enabled = false;
-            this.RecoverBtn.Location = new System.Drawing.Point(536, 206);
+            this.RecoverBtn.Location = new System.Drawing.Point(583, 206);
             this.RecoverBtn.Name = "RecoverBtn";
             this.RecoverBtn.Size = new System.Drawing.Size(75, 23);
             this.RecoverBtn.TabIndex = 8;
@@ -138,7 +139,7 @@
             // FreezeBtn
             // 
             this.FreezeBtn.Enabled = false;
-            this.FreezeBtn.Location = new System.Drawing.Point(617, 206);
+            this.FreezeBtn.Location = new System.Drawing.Point(664, 206);
             this.FreezeBtn.Name = "FreezeBtn";
             this.FreezeBtn.Size = new System.Drawing.Size(75, 23);
             this.FreezeBtn.TabIndex = 9;
@@ -149,7 +150,7 @@
             // FailBtn
             // 
             this.FailBtn.Enabled = false;
-            this.FailBtn.Location = new System.Drawing.Point(698, 206);
+            this.FailBtn.Location = new System.Drawing.Point(745, 206);
             this.FailBtn.Name = "FailBtn";
             this.FailBtn.Size = new System.Drawing.Size(75, 23);
             this.FailBtn.TabIndex = 10;
@@ -157,11 +158,22 @@
             this.FailBtn.UseVisualStyleBackColor = true;
             this.FailBtn.Click += new System.EventHandler(this.FailBtn_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(502, 206);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 11;
+            this.button1.Text = "Status";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(846, 532);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.FailBtn);
             this.Controls.Add(this.FreezeBtn);
             this.Controls.Add(this.RecoverBtn);
@@ -193,6 +205,7 @@
         private System.Windows.Forms.Button RecoverBtn;
         private System.Windows.Forms.Button FreezeBtn;
         private System.Windows.Forms.Button FailBtn;
+        private System.Windows.Forms.Button button1;
     }
 }
 
