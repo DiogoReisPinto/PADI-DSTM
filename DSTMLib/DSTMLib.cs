@@ -124,30 +124,32 @@ namespace PADIDSTM
 
 
         public static PadInt AccessPadInt(int uid) {
-            RemotePadInt newRemotePadInt = AccessRemotePadInt(uid);
-            if (newRemotePadInt == null)
+            RemotePadInt[] newRemotePadInt = AccessRemotePadInt(uid);
+            if (newRemotePadInt[0] == null || newRemotePadInt[1]==null)
             {
                 return null;
             }
-            PadInt newPad = new PadInt(newRemotePadInt.uid);
+            PadInt newPad = new PadInt(newRemotePadInt[0].uid);
             return newPad;
         }
 
 
-        public static RemotePadInt AccessRemotePadInt(int uid) {
+        public static RemotePadInt[] AccessRemotePadInt(int uid) {
             string[] url = masterServ.DiscoverPadInt(uid);
+            RemotePadInt[] remotePadInts = new RemotePadInt[2];
             if (url == null|| url[0]=="UNDEFINED" || url[1]=="UNDEFINED")
                 return null;
-            Console.WriteLine(url);
             ISlave slave1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url[0]);
             ISlave slave2 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url[1]);
-            RemotePadInt retPadInt1 = slave1.access(uid,tsValue);
-            RemotePadInt retPadInt2 = slave2.access(uid, tsValue);
-            return retPadInt1;
+
+            //HERE SHOULD WE VERIFY THE STATE OF THE BOTH SERVERS OR WE ONLY ACCESS ONE AND RETURN IT?
+            remotePadInts[0] = slave1.access(uid, tsValue);
+            remotePadInts[1] = slave2.access(uid, tsValue);
+            return remotePadInts;
         }
     }
 }

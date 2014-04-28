@@ -49,6 +49,9 @@ namespace MasterServer
                 {
                     Console.WriteLine(urlServerDest);
                     urlServerDest = getBestSlave();
+                    //CASO EM QUE SO EXISTE UM SLAVE
+                    if (urlServerDest[1] == null)
+                        return null;
                     padIntLocation.Add(uid, new string[] { "UNDEFINED", "UNDEFINED" });
                  }
                 else {
@@ -60,7 +63,6 @@ namespace MasterServer
 
         private string[] getBestSlave()
         {
-            Console.WriteLine("AQUI");
             String[] url = new String[2];
             var sortedSlaves =(from item in serversLoad
                                     orderby item.Value 
@@ -74,9 +76,6 @@ namespace MasterServer
                 if (i == 2)
                     break;
             }
-            //CASO EM QUE SÓ EXISTE 1 SLAVE - PERGUNTAR AO PROF
-            if (url[1] == null)
-                url[1] = url[0];
             return url;
             
         }
