@@ -105,16 +105,20 @@ namespace PADIDSTM
         }
 
         public static PadInt CreatePadInt(int uid) {
-            string url = masterServ.GetLocationNewPadInt(uid);
+            string[] url = masterServ.GetLocationNewPadInt(uid);
             if (url == null)
                 return null;
-
-            ISlave slave = (ISlave)Activator.GetObject(
+            ISlave slave1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
-                               url);
-            RemotePadInt newRemotePadInt = slave.create(uid,tsValue);
-            PadInt newPad = new PadInt(newRemotePadInt.uid);
-            createdPadInts.Add(newRemotePadInt);
+                               url[0]);
+            ISlave slave2 = (ISlave)Activator.GetObject(
+                                  typeof(ISlave),
+                              url[1]); 
+            RemotePadInt newRemotePadInt1 = slave1.create(uid,tsValue);
+            RemotePadInt newRemotePadInt2 = slave2.create(uid, tsValue);
+            PadInt newPad = new PadInt(newRemotePadInt1.uid);
+            createdPadInts.Add(newRemotePadInt1);
+            createdPadInts.Add(newRemotePadInt2);
             return newPad;
         }
 
@@ -131,17 +135,19 @@ namespace PADIDSTM
 
 
         public static RemotePadInt AccessRemotePadInt(int uid) {
-            string url = masterServ.DiscoverPadInt(uid);
-            //UNDEFINED Check if really neededs
-            if (url == null|| url=="UNDEFINED")
+            string[] url = masterServ.DiscoverPadInt(uid);
+            if (url == null|| url[0]=="UNDEFINED" || url[1]=="UNDEFINED")
                 return null;
             Console.WriteLine(url);
-
-            ISlave slave = (ISlave)Activator.GetObject(
+            ISlave slave1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
-                               url);
-            RemotePadInt retPadInt = slave.access(uid,tsValue);
-            return retPadInt;
+                               url[0]);
+            ISlave slave2 = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               url[1]);
+            RemotePadInt retPadInt1 = slave1.access(uid,tsValue);
+            RemotePadInt retPadInt2 = slave2.access(uid, tsValue);
+            return retPadInt1;
         }
     }
 }

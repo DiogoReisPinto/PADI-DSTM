@@ -46,7 +46,6 @@ namespace PADIDSTM
         public int Read(string ts)
         {
             long tc = Convert.ToInt64(ts.Split('#')[0]);
-            //NOT USED FOR CHECKPOINT IMPLEMENTATION
             int tieBreaker = Convert.ToInt32(ts.Split('#')[1]);
             ISlave server = (ISlave)Activator.GetObject(
                                     typeof(ISlave),

@@ -52,6 +52,7 @@
             this.Log.ReadOnly = true;
             this.Log.Size = new System.Drawing.Size(442, 480);
             this.Log.TabIndex = 0;
+            
             // 
             // LogLabel
             // 

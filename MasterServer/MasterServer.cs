@@ -26,7 +26,7 @@ namespace MasterServer
     public class RemoteMaster : MarshalByRefObject, IMaster
     {
         private Dictionary<string, int> serversLoad = new Dictionary<string, int>();
-        private Dictionary<int, string> padIntLocation = new Dictionary<int, string>();
+        private Dictionary<int, string[]> padIntLocation = new Dictionary<int, string[]>();
         private int transactionID = 0;
         private Object tIDLock = new Object();
         private Object padIntLocationLock = new Object();
@@ -37,18 +37,20 @@ namespace MasterServer
             this.form = form;
         }
 
-        public string GetLocationNewPadInt(int uid)
+        public string[] GetLocationNewPadInt(int uid)
         {
-            string urlServerDest = null;
+            string[] urlServerDest = null;
             //CALL TO THE LOAD BALANCER ALGORITHM 
             lock (padIntLocationLock)
             {
                 urlServerDest = DiscoverPadInt(uid);
-                if (urlServerDest == null)
+                
+                if (urlServerDest[0] == null)
                 {
+                    Console.WriteLine(urlServerDest);
                     urlServerDest = getBestSlave();
-                    padIntLocation.Add(uid, "UNDEFINED");
-                }
+                    padIntLocation.Add(uid, new string[] { "UNDEFINED", "UNDEFINED" });
+                 }
                 else {
                     urlServerDest = null;
                 }
@@ -56,27 +58,39 @@ namespace MasterServer
             return urlServerDest;
         }
 
-        private string getBestSlave()
+        private string[] getBestSlave()
         {
-            string url = null;
-            int maxLoad = Int32.MaxValue;
-            foreach (string slaveUrl in serversLoad.Keys) {
-                int load = serversLoad[slaveUrl];
-                if (load < maxLoad) {
-                    url = slaveUrl;
-                    maxLoad = load;
-                }
+            Console.WriteLine("AQUI");
+            String[] url = new String[2];
+            var sortedSlaves =(from item in serversLoad
+                                    orderby item.Value 
+                                    ascending
+                                    select item);
+            int i = 0;
+            foreach (KeyValuePair<string, int> item in sortedSlaves)
+            {
+                url[i]=item.Key;
+                i++;
+                if (i == 2)
+                    break;
             }
+            //CASO EM QUE SÓ EXISTE 1 SLAVE - PERGUNTAR AO PROF
+            if (url[1] == null)
+                url[1] = url[0];
             return url;
+            
         }
 
-        public string DiscoverPadInt(int uid)
+        public string[] DiscoverPadInt(int uid)
         {
-            string url = null;
-            foreach (KeyValuePair<int, string> entry in padIntLocation)
+            string[] url = new string[2];
+            foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
                 if (entry.Key == uid)
-                    url=entry.Value;
+                {
+                    url[0] = entry.Value[0];
+                    url[1] = entry.Value[1];
+                }
             }
             return url;
         }
@@ -98,9 +112,19 @@ namespace MasterServer
 
         public void RegisterNewPadInt(int uid, string serverURL)
         {
-            padIntLocation[uid]= serverURL;
-            serversLoad[serverURL]++;
-            Console.WriteLine("REGISTER New PAD LOCATION: "+padIntLocation[uid]);
+            if (padIntLocation[uid][0] == "UNDEFINED")
+            {
+                padIntLocation[uid][0] = serverURL;
+                serversLoad[serverURL]++;
+            }
+            else
+            {
+                padIntLocation[uid][1] = serverURL;
+                serversLoad[serverURL]++;
+            }
+               
+            Console.WriteLine("REGISTER New PAD LOCATION: "+padIntLocation[uid][0]);
+            Console.WriteLine("REGISTER New PAD LOCATION: " + padIntLocation[uid][1]);
             updateForm();
         }
 
@@ -129,13 +153,19 @@ namespace MasterServer
         {
             foreach (int id in UIDsToRemove)
             {
-                string url = padIntLocation[id];
-                serversLoad[url]--;
+                string[] url = padIntLocation[id];
+                serversLoad[url[0]]--;
+                serversLoad[url[1]]--;
                 padIntLocation.Remove(id);
-                ISlave server = (ISlave)Activator.GetObject(
+                ISlave server1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
-                               url);
-                server.removePadInt(id);
+                               url[0]);
+                ISlave server2 = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               url[1]);
+                server1.removePadInt(id);
+                server2.removePadInt(id);
+
             }
 
             updateForm();

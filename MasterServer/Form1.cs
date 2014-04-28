@@ -16,7 +16,7 @@ namespace MasterServer
 {
     delegate void delLog(string logEntry);
     delegate void delServerLoad(Dictionary<string, int> serversLoad);
-    delegate void delUpdatePadInt(Dictionary<int, string> padIntLocation);
+    delegate void delUpdatePadInt(Dictionary<int, string[]> padIntLocation);
 
     public partial class Form1 : Form
     {
@@ -56,14 +56,18 @@ namespace MasterServer
             }
         }
 
-        public void updatePadInts(Dictionary<int, string> padIntLocation)
+        public void updatePadInts(Dictionary<int, string[]> padIntLocation)
         {
             this.PadIntLocation.Items.Clear();
-            foreach (KeyValuePair<int, string> padint in padIntLocation)
+            foreach (KeyValuePair<int, string[]> padint in padIntLocation)
             {
-                string[] padints = { Convert.ToString(padint.Key), padint.Value };
-                var listItem = new ListViewItem(padints);
-                this.PadIntLocation.Items.Add(listItem);
+                string[] locations = padint.Value;
+                string[] padints1 = { Convert.ToString(padint.Key), padint.Value[0] };
+                string[] padints2 = { Convert.ToString(padint.Key), padint.Value[1] };
+                var listItem1 = new ListViewItem(padints1);
+                var listItem2 = new ListViewItem(padints2);
+                this.PadIntLocation.Items.Add(listItem1);
+                this.PadIntLocation.Items.Add(listItem2);
             }
         }
 
@@ -107,5 +111,7 @@ namespace MasterServer
             log("Dumping Information on slaves");
             DSTMLib.Status();
         }
+
+        
     }
 }
