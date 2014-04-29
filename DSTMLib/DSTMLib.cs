@@ -8,6 +8,8 @@ using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Serialization.Formatters;
+using System.Net.Sockets;
+using System.IO;
 
 namespace PADIDSTM
 {
@@ -46,30 +48,86 @@ namespace PADIDSTM
 
         public static bool TxCommit()
         {
-            foreach (RemotePadInt rpi in visitedPadInts)
-            {
-                rpi.commitTx(tsValue);
+            int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
+            int votes = 0;
+            //PREPARE MESSAGES FOR COMMITING ON FIRST PHASE 2PC
+            
+            foreach (RemotePadInt rpi in visitedPadInts){
+               try{
+                   votes = votes +  rpi.prepareCommitTx(tsValue);
+               }
+               catch (SocketException e){}
             }
-            foreach (RemotePadInt rpi in createdPadInts)
+                foreach (RemotePadInt rpi in createdPadInts){
+                    try{
+                        votes = votes + rpi.prepareCommitPadInt(tsValue);
+                    }
+                    catch (SocketException e){}
+                    catch (IOException e) { }
+                }
+           
+           
+            
+            //COMMIT MESSAGES FOR COMMITING ON SECOND PHASE 2PC
+            int acks = 0;
+            if (votes == expectedVotes)
             {
-                rpi.commitPadInt(tsValue);
+                foreach (RemotePadInt rpi in visitedPadInts)
+                {
+                    acks += rpi.commitTx(tsValue);
+                }
+                foreach (RemotePadInt rpi in createdPadInts)
+                {
+                    acks += rpi.commitPadInt(tsValue);
+                }
+                if (acks == expectedVotes)
+                    return true;
+                else
+                {
+                    throw new TxException("TRANSACTION FAILED DURING ACK PHASE");
+
+                }
             }
-            return true;
+            else
+            {
+                TxAbort();
+                return false;
+            }
 
         }
 
         public static bool TxAbort() {
             List<int> UIDsToRemove = new List<int>();
+            int acks = 0;
+            int expectedAcks= visitedPadInts.Count + createdPadInts.Count;
             foreach (RemotePadInt rpi in visitedPadInts)
             {
-                rpi.abortTx(tsValue);
+                try
+                {
+                    acks += rpi.abortTx(tsValue);
+                }
+                catch (SocketException e)
+                {
+                    //DECLARE URL OF RPI AS DOWN
+                }
             }
             foreach (RemotePadInt rpi in createdPadInts)
             {
-                UIDsToRemove.Add(rpi.uid);
+                try
+                {
+                    UIDsToRemove.Add(rpi.uid);
+                    acks++;
+                }
+                catch (SocketException e)
+                {
+                    //DECLARE URL OF RPI AS DOWN
+                }
             }
             masterServ.removeUID(UIDsToRemove);
-            return true;
+            if (acks == expectedAcks)
+                return true;
+            else
+                return false;
         
         }
 

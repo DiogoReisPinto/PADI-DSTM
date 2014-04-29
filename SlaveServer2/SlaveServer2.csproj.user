@@ -2,6 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <StartAction>Program</StartAction>
-    <StartProgram>z:\Desktop\PADI-DSTM\SlaveServer\bin\Debug\SlaveServer.exe</StartProgram>
+    <StartProgram>C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\bin\Debug\SlaveServer.exe</StartProgram>
   </PropertyGroup>
 </Project>

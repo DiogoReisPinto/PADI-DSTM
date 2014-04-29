@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
@@ -161,10 +162,16 @@ namespace MasterServer
                                url[0]);
                 ISlave server2 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
-                               url[1]);
-                server1.removePadInt(id);
-                server2.removePadInt(id);
-
+                                   url[1]);
+                try
+                {
+                    server1.removePadInt(id);
+                    server2.removePadInt(id);
+                }
+                catch(SocketException e)
+                {
+                    //DO NOTHING BECAUSE WE DO NOT NEED TO REMOVE A PADINT FROM A SERVER THAT IS NOT AVAILABLE
+                }
             }
 
             updateForm();

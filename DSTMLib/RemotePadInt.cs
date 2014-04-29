@@ -20,6 +20,7 @@ namespace PADIDSTM
         List<TVersion> tentativeVersions = new List<TVersion>();
         public bool isCommited;
         public long creatorTID;
+        private TVersion preparedCommit;
 
 
         public List<long> Rts
@@ -129,7 +130,7 @@ namespace PADIDSTM
             return max;
         }
 
-        public void abortTx(long txID)
+        public int abortTx(long txID)
         {
             List<TVersion> toRemove = new List<TVersion>();
             foreach (TVersion tv in tentativeVersions)
@@ -141,23 +142,41 @@ namespace PADIDSTM
             {
                 tentativeVersions.Remove(tv);
             }
+            return 1;
         }
 
-        public void commitTx(long txID)
+        public int prepareCommitTx(long txID)
         {
             foreach (TVersion tv in tentativeVersions)
             {
                 if (tv.writeTS == txID)
                 {
-                    wts = txID;
-                    value = tv.versionVal;
-                    tv.commited = true;
+                    preparedCommit = tv;
+                    preparedCommit.commited = false;
                 }
             }
+
+            return 1;
         }
 
-        public void commitPadInt(long txID) {
+        public int commitTx(long txID)
+        {
+            this.value = preparedCommit.versionVal;
+            this.wts = preparedCommit.writeTS;
+            preparedCommit.commited = true;
+            preparedCommit = null;
+            return 1;
+        }
+
+        public int prepareCommitPadInt(long txID) {
+            //VALERA A PENA TER ISTO?
+            return 1;
+        }
+
+        public int commitPadInt(long txID)
+        {
             this.isCommited = true;
+            return 1;
         }
     }
 }
