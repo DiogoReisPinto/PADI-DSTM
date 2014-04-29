@@ -63,11 +63,13 @@ namespace SlaveServer
         public static IMaster masterServ;
 
         
+
+        //tid==0 is from a call for copy padint - tolerant version
         public RemotePadInt access(int uid,long tid)
         {
             while (freezed || failed) { };
             RemotePadInt req = padIntObjects[uid];
-            if (tid == req.creatorTID)
+            if (tid == req.creatorTID || tid==0)
                 return req;
             if(!req.isCommited){
                 Thread.Sleep(1000);
@@ -97,20 +99,38 @@ namespace SlaveServer
             return newPadInt;
         }
 
+        public void addCopyOfPadInt(RemotePadInt pi)
+        {
+            padIntObjects.Add(pi.uid,pi);
+        }
+
 
         public void freeze() 
         {
             freezed = true;
+            foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
+            {
+                entry.Value.FreezeOrFail();
+            }
+
         }
 
         public void fail()
         {
             failed = true;
+            foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
+            {
+                entry.Value.FreezeOrFail();
+            }
         }
 
         public void recover() {
             freezed = false;
             failed = false;
+            foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
+            {
+                entry.Value.Recover();
+            }
         }
         public void status()
         {

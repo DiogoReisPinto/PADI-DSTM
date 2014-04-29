@@ -56,14 +56,20 @@ namespace PADIDSTM
                try{
                    votes = votes +  rpi.prepareCommitTx(tsValue);
                }
-               catch (SocketException e){}
+               catch (SocketException){
+                   masterServ.declareSlaveFailed(rpi.url);
+               }
             }
                 foreach (RemotePadInt rpi in createdPadInts){
                     try{
                         votes = votes + rpi.prepareCommitPadInt(tsValue);
                     }
-                    catch (SocketException e){}
-                    catch (IOException e) { }
+                    catch (SocketException){
+                        masterServ.declareSlaveFailed(rpi.url);
+                    }
+                    catch (IOException) {
+                        masterServ.declareSlaveFailed(rpi.url);
+                    }
                 }
            
            
@@ -106,9 +112,9 @@ namespace PADIDSTM
                 {
                     acks += rpi.abortTx(tsValue);
                 }
-                catch (SocketException e)
+                catch (SocketException)
                 {
-                    //DECLARE URL OF RPI AS DOWN
+                    masterServ.declareSlaveFailed(rpi.url);
                 }
             }
             foreach (RemotePadInt rpi in createdPadInts)
@@ -118,9 +124,9 @@ namespace PADIDSTM
                     UIDsToRemove.Add(rpi.uid);
                     acks++;
                 }
-                catch (SocketException e)
+                catch (SocketException)
                 {
-                    //DECLARE URL OF RPI AS DOWN
+                    masterServ.declareSlaveFailed(rpi.url);
                 }
             }
             masterServ.removeUID(UIDsToRemove);
@@ -209,5 +215,7 @@ namespace PADIDSTM
             remotePadInts[1] = slave2.access(uid, tsValue);
             return remotePadInts;
         }
+
+        
     }
 }

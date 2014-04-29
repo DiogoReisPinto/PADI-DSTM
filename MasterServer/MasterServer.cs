@@ -45,40 +45,40 @@ namespace MasterServer
             lock (padIntLocationLock)
             {
                 urlServerDest = DiscoverPadInt(uid);
-                
+
                 if (urlServerDest[0] == null)
                 {
-                    Console.WriteLine(urlServerDest);
-                    urlServerDest = getBestSlave();
+                    urlServerDest = getBestSlaves(2);
                     //CASO EM QUE SO EXISTE UM SLAVE
                     if (urlServerDest[1] == null)
                         return null;
                     padIntLocation.Add(uid, new string[] { "UNDEFINED", "UNDEFINED" });
-                 }
-                else {
+                }
+                else
+                {
                     urlServerDest = null;
                 }
             }
             return urlServerDest;
         }
 
-        private string[] getBestSlave()
+        private string[] getBestSlaves(int num)
         {
-            String[] url = new String[2];
-            var sortedSlaves =(from item in serversLoad
-                                    orderby item.Value 
-                                    ascending
-                                    select item);
+            String[] url = new String[num];
+            var sortedSlaves = (from item in serversLoad
+                                orderby item.Value
+                                ascending
+                                select item);
             int i = 0;
             foreach (KeyValuePair<string, int> item in sortedSlaves)
             {
-                url[i]=item.Key;
+                url[i] = item.Key;
                 i++;
-                if (i == 2)
+                if (i == num)
                     break;
             }
             return url;
-            
+
         }
 
         public string[] DiscoverPadInt(int uid)
@@ -122,8 +122,8 @@ namespace MasterServer
                 padIntLocation[uid][1] = serverURL;
                 serversLoad[serverURL]++;
             }
-               
-            Console.WriteLine("REGISTER New PAD LOCATION: "+padIntLocation[uid][0]);
+
+            Console.WriteLine("REGISTER New PAD LOCATION: " + padIntLocation[uid][0]);
             Console.WriteLine("REGISTER New PAD LOCATION: " + padIntLocation[uid][1]);
             updateForm();
         }
@@ -168,14 +168,14 @@ namespace MasterServer
                     server1.removePadInt(id);
                     server2.removePadInt(id);
                 }
-                catch(SocketException e)
+                catch (SocketException)
                 {
                     //DO NOTHING BECAUSE WE DO NOT NEED TO REMOVE A PADINT FROM A SERVER THAT IS NOT AVAILABLE
                 }
             }
 
             updateForm();
-           
+
         }
 
         private void updateForm()
@@ -191,16 +191,60 @@ namespace MasterServer
 
         }
 
-
-    }
-
-    public static class TimeStamp
-    {
-        public static String GetTimestamp(this DateTime value)
+        public void declareSlaveFailed(string serverUrlFailed)
         {
-            return value.ToString("yyyyMMddHHmmssffff");
+            foreach (KeyValuePair<int, string[]> entry in padIntLocation)
+            {
+                //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN
+                if (entry.Value[0] == serverUrlFailed)
+                {
+                    entry.Value[0] = "UNDEFINED";
+                    string URLWithPadIntAvaliable = entry.Value[1];
+                    string newURL = getBestSlaves(1)[0];
+                    ISlave slaveToCopy = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               URLWithPadIntAvaliable);
+                    ISlave slaveToCreate = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               newURL);
+                    RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0);
+                    RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
+                    slaveToCreate.addCopyOfPadInt(newPadInt);
+                    entry.Value[0] = newURL;
+                }
+                else if(entry.Value[1]==serverUrlFailed)
+                {
+                    entry.Value[1] = "UNDEFINED";
+                    string URLWithPadIntAvaliable = entry.Value[0];
+                    string newURL = getBestSlaves(1)[0];
+                    ISlave slaveToCopy = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               URLWithPadIntAvaliable);
+                    ISlave slaveToCreate = (ISlave)Activator.GetObject(
+                                   typeof(ISlave),
+                               newURL);
+                    RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0);
+                    RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
+                    slaveToCreate.addCopyOfPadInt(newPadInt);
+                    entry.Value[1] = newURL;
+                }
+
+            }
+
+
         }
     }
 
-    
-}
+
+
+
+        public static class TimeStamp
+        {
+            public static String GetTimestamp(this DateTime value)
+            {
+                return value.ToString("yyyyMMddHHmmssffff");
+            }
+        }
+
+    } 
+

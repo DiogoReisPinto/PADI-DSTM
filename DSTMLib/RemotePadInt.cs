@@ -16,11 +16,13 @@ namespace PADIDSTM
         public int value;
         public string url;
         private long wts;
-        List<long> rts = new List<long>();
-        List<TVersion> tentativeVersions = new List<TVersion>();
+        public List<long> rts = new List<long>();
+        public List<TVersion> tentativeVersions = new List<TVersion>();
         public bool isCommited;
         public long creatorTID;
-        private TVersion preparedCommit;
+        public TVersion preparedCommit;
+        public bool failOrFreezed = false;
+        
 
 
         public List<long> Rts
@@ -44,8 +46,24 @@ namespace PADIDSTM
             this.isCommited = false;
         }
 
+        public RemotePadInt(RemotePadInt availablePadInt, string newURL)
+        {
+
+            this.uid = availablePadInt.uid;
+            this.value = availablePadInt.value;
+            this.url = newURL;
+            this.wts = availablePadInt.wts;
+            this.rts = availablePadInt.rts;
+            this.tentativeVersions = availablePadInt.tentativeVersions;
+            this.isCommited = availablePadInt.isCommited;
+            this.creatorTID = availablePadInt.creatorTID;
+            this.preparedCommit = availablePadInt.preparedCommit;
+            this.failOrFreezed = availablePadInt.failOrFreezed;
+        }
+
         public int Read(string ts)
         {
+            while (failOrFreezed) { }
             long tc = Convert.ToInt64(ts.Split('#')[0]);
             int tieBreaker = Convert.ToInt32(ts.Split('#')[1]);
             ISlave server = (ISlave)Activator.GetObject(
@@ -91,6 +109,7 @@ namespace PADIDSTM
 
         public bool Write(int value, string ts)
         {
+            while (failOrFreezed) { }
             Console.WriteLine("uid:" + uid + " ts: " + ts);
             string[] txID = ts.Split('#');
 
@@ -132,6 +151,7 @@ namespace PADIDSTM
 
         public int abortTx(long txID)
         {
+            while (failOrFreezed) { }
             List<TVersion> toRemove = new List<TVersion>();
             foreach (TVersion tv in tentativeVersions)
             {
@@ -147,6 +167,7 @@ namespace PADIDSTM
 
         public int prepareCommitTx(long txID)
         {
+            while (failOrFreezed) { }
             foreach (TVersion tv in tentativeVersions)
             {
                 if (tv.writeTS == txID)
@@ -177,6 +198,16 @@ namespace PADIDSTM
         {
             this.isCommited = true;
             return 1;
+        }
+
+        public void FreezeOrFail()
+        {
+            this.failOrFreezed = true;
+        }
+
+        public void Recover()
+        {
+            this.failOrFreezed = false;
         }
     }
 }
