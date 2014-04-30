@@ -212,6 +212,7 @@ namespace MasterServer
                     slaveToCreate.addCopyOfPadInt(newPadInt);
                     entry.Value[0] = newURL;
                 }
+                //CASO EM QUE E O SEGUNDO A ESTAR DOWN
                 else if(entry.Value[1]==serverUrlFailed)
                 {
                     entry.Value[1] = "UNDEFINED";

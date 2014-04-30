@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PADIDSTM
 {
-    public class TVersion
+    public class TVersion:MarshalByRefObject
     {
         
         public long writeTS;

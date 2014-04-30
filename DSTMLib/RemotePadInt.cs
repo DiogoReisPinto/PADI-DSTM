@@ -52,8 +52,8 @@ namespace PADIDSTM
             this.uid = availablePadInt.uid;
             this.value = availablePadInt.value;
             this.url = newURL;
-            this.wts = availablePadInt.wts;
-            this.rts = availablePadInt.rts;
+            this.wts = availablePadInt.Wts;
+            this.rts = availablePadInt.Rts;
             this.tentativeVersions = availablePadInt.tentativeVersions;
             this.isCommited = availablePadInt.isCommited;
             this.creatorTID = availablePadInt.creatorTID;

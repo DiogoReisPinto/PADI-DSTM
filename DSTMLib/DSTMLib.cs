@@ -19,8 +19,8 @@ namespace PADIDSTM
         public static IMaster masterServ;
         public static string transactionTS;
         public static long tsValue;
-        public static List<RemotePadInt> visitedPadInts;
-        public static List<RemotePadInt> createdPadInts;
+        public static Dictionary<RemotePadInt,string> visitedPadInts;
+        public static Dictionary<RemotePadInt,string> createdPadInts;
 
         public static bool Init() {
 
@@ -40,8 +40,8 @@ namespace PADIDSTM
             string timeStamp = masterServ.GetTS(tID);
             transactionTS = timeStamp;
             tsValue = Convert.ToInt64(transactionTS.Split('#')[0]);
-            visitedPadInts = new List<RemotePadInt>();
-            createdPadInts = new List<RemotePadInt>();
+            visitedPadInts = new Dictionary<RemotePadInt,string>();
+            createdPadInts = new Dictionary<RemotePadInt, string>();
             Console.WriteLine("IN DSTMlib: "+transactionTS);
             return true;
         }
@@ -52,23 +52,25 @@ namespace PADIDSTM
             int votes = 0;
             //PREPARE MESSAGES FOR COMMITING ON FIRST PHASE 2PC
             
-            foreach (RemotePadInt rpi in visitedPadInts){
+            foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
+            {
                try{
-                   votes = votes +  rpi.prepareCommitTx(tsValue);
+                   votes = votes +  entry.Key.prepareCommitTx(tsValue);
                }
                catch (SocketException){
-                   masterServ.declareSlaveFailed(rpi.url);
+                   masterServ.declareSlaveFailed(entry.Value);
                }
             }
-                foreach (RemotePadInt rpi in createdPadInts){
+            foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
+            {
                     try{
-                        votes = votes + rpi.prepareCommitPadInt(tsValue);
+                        votes = votes + entry.Key.prepareCommitPadInt(tsValue);
                     }
                     catch (SocketException){
-                        masterServ.declareSlaveFailed(rpi.url);
+                        masterServ.declareSlaveFailed(entry.Value);
                     }
                     catch (IOException) {
-                        masterServ.declareSlaveFailed(rpi.url);
+                        masterServ.declareSlaveFailed(entry.Value);
                     }
                 }
            
@@ -78,13 +80,13 @@ namespace PADIDSTM
             int acks = 0;
             if (votes == expectedVotes)
             {
-                foreach (RemotePadInt rpi in visitedPadInts)
+                foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
                 {
-                    acks += rpi.commitTx(tsValue);
+                    acks += entry.Key.commitTx(tsValue);
                 }
-                foreach (RemotePadInt rpi in createdPadInts)
+                foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
                 {
-                    acks += rpi.commitPadInt(tsValue);
+                    acks += entry.Key.commitPadInt(tsValue);
                 }
                 if (acks == expectedVotes)
                     return true;
@@ -106,27 +108,27 @@ namespace PADIDSTM
             List<int> UIDsToRemove = new List<int>();
             int acks = 0;
             int expectedAcks= visitedPadInts.Count + createdPadInts.Count;
-            foreach (RemotePadInt rpi in visitedPadInts)
+            foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
                 try
                 {
-                    acks += rpi.abortTx(tsValue);
+                    acks += entry.Key.abortTx(tsValue);
                 }
                 catch (SocketException)
                 {
-                    masterServ.declareSlaveFailed(rpi.url);
+                    masterServ.declareSlaveFailed(entry.Value);
                 }
             }
-            foreach (RemotePadInt rpi in createdPadInts)
+            foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
             {
                 try
                 {
-                    UIDsToRemove.Add(rpi.uid);
+                    UIDsToRemove.Add(entry.Key.uid);
                     acks++;
                 }
                 catch (SocketException)
                 {
-                    masterServ.declareSlaveFailed(rpi.url);
+                    masterServ.declareSlaveFailed(entry.Value);
                 }
             }
             masterServ.removeUID(UIDsToRemove);
@@ -181,8 +183,8 @@ namespace PADIDSTM
             RemotePadInt newRemotePadInt1 = slave1.create(uid,tsValue);
             RemotePadInt newRemotePadInt2 = slave2.create(uid, tsValue);
             PadInt newPad = new PadInt(newRemotePadInt1.uid);
-            createdPadInts.Add(newRemotePadInt1);
-            createdPadInts.Add(newRemotePadInt2);
+            createdPadInts.Add(newRemotePadInt1,url[0]);
+            createdPadInts.Add(newRemotePadInt2,url[1]);
             return newPad;
         }
 
