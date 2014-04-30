@@ -253,6 +253,14 @@ namespace PADIDSTM
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);
                 return rpi;
             }
+            catch (IOException)
+            {
+                masterServ.declareSlaveFailed(url[1]);
+                Thread.Sleep(5000);
+                //Makes Second attemp to access padInt
+                RemotePadInt[] rpi = AccessRemotePadInt(uid);
+                return rpi;
+            }
             return remotePadInts;
         }
 
