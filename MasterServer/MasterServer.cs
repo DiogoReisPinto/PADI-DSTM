@@ -196,6 +196,7 @@ namespace MasterServer
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
                 //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN
+                serversLoad.Remove(serverUrlFailed);
                 if (entry.Value[0] == serverUrlFailed)
                 {
                     entry.Value[0] = "UNDEFINED";
@@ -229,6 +230,7 @@ namespace MasterServer
                     slaveToCreate.addCopyOfPadInt(newPadInt);
                     entry.Value[1] = newURL;
                 }
+                updateForm();
 
             }
 

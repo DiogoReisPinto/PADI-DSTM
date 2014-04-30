@@ -213,8 +213,22 @@ namespace PADIDSTM
                                url[1]);
 
             //HERE SHOULD WE VERIFY THE STATE OF THE BOTH SERVERS OR WE ONLY ACCESS ONE AND RETURN IT?
-            remotePadInts[0] = slave1.access(uid, tsValue);
-            remotePadInts[1] = slave2.access(uid, tsValue);
+            try
+            {
+                remotePadInts[0] = slave1.access(uid, tsValue);
+            }
+            catch (SocketException)
+            {
+                masterServ.declareSlaveFailed(url[0]);
+            }
+            try
+            {
+                remotePadInts[1] = slave2.access(uid, tsValue);
+            }
+            catch (SocketException)
+            {
+                masterServ.declareSlaveFailed(url[1]);
+            }
             return remotePadInts;
         }
 
