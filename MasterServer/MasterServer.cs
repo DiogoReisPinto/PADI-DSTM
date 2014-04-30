@@ -81,6 +81,8 @@ namespace MasterServer
 
         }
 
+        
+
         public string[] DiscoverPadInt(int uid)
         {
             string[] url = new string[2];
@@ -191,6 +193,26 @@ namespace MasterServer
 
         }
 
+
+        private string getSlaveToCopy(string urlPadIntAvailable)
+        {
+            string url=null;
+            var sortedSlaves = (from item in serversLoad
+                                orderby item.Value
+                                ascending
+                                select item);
+            foreach (KeyValuePair<string, int> item in sortedSlaves)
+            {
+                if (item.Key != urlPadIntAvailable)
+                {
+                    url=item.Key;
+                    break;
+                }
+                
+            }
+            return url;
+        }
+
         public bool declareSlaveFailed(string serverUrlFailed)
         {
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
@@ -201,7 +223,7 @@ namespace MasterServer
                 {
                     entry.Value[0] = "UNDEFINED";
                     string URLWithPadIntAvaliable = entry.Value[1];
-                    string newURL = getBestSlaves(1)[0];
+                    string newURL = getSlaveToCopy(URLWithPadIntAvaliable);
                     ISlave slaveToCopy = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                URLWithPadIntAvaliable);
@@ -219,7 +241,7 @@ namespace MasterServer
                 {
                     entry.Value[1] = "UNDEFINED";
                     string URLWithPadIntAvaliable = entry.Value[0];
-                    string newURL = getBestSlaves(1)[0];
+                    string newURL = getSlaveToCopy(URLWithPadIntAvaliable);
                     ISlave slaveToCopy = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                URLWithPadIntAvaliable);
