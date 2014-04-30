@@ -24,8 +24,11 @@ namespace PADIDSTM
         public static Dictionary<RemotePadInt,string> createdPadInts;
 
         public static bool Init() {
-
-            TcpChannel channel = new TcpChannel(0);
+            BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
+            IDictionary props = new Hashtable();
+            props["port"] = 0;
+            props["timeout"] = 5000; // in milliseconds
+            TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
                                     typeof(IMaster),
@@ -52,7 +55,6 @@ namespace PADIDSTM
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
             int votes = 0;
             //PREPARE MESSAGES FOR COMMITING ON FIRST PHASE 2PC
-            
             foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
                try{
@@ -219,8 +221,12 @@ namespace PADIDSTM
         public static RemotePadInt[] AccessRemotePadInt(int uid) {
             string[] url = masterServ.DiscoverPadInt(uid);
             RemotePadInt[] remotePadInts = new RemotePadInt[2];
-            if (url == null|| url[0]=="UNDEFINED" || url[1]=="UNDEFINED")
-                return null;
+            if (url[0] == null || url[1] == null || url[0] == "UNDEFINED" || url[1] == "UNDEFINED")
+            {
+                return remotePadInts;
+
+
+            }
             ISlave slave1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url[0]);
