@@ -10,6 +10,7 @@ using System.Collections;
 using System.Runtime.Serialization.Formatters;
 using System.Net.Sockets;
 using System.IO;
+using System.Threading;
 
 namespace PADIDSTM
 {
@@ -59,6 +60,9 @@ namespace PADIDSTM
                }
                catch (SocketException){
                    masterServ.declareSlaveFailed(entry.Value);
+                   Thread.Sleep(2000);
+                   //Make another try to commit transaction
+                   TxCommit();
                }
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
@@ -68,9 +72,15 @@ namespace PADIDSTM
                     }
                     catch (SocketException){
                         masterServ.declareSlaveFailed(entry.Value);
+                        Thread.Sleep(2000);
+                        //Make another attemp to commit transaction
+                        TxCommit();
                     }
                     catch (IOException) {
                         masterServ.declareSlaveFailed(entry.Value);
+                        Thread.Sleep(2000);
+                        //Make another attemp to commit transaction
+                        TxCommit();
                     }
                 }
            
@@ -117,6 +127,9 @@ namespace PADIDSTM
                 catch (SocketException)
                 {
                     masterServ.declareSlaveFailed(entry.Value);
+                    Thread.Sleep(2000);
+                    //Makes Second attemp to abort transaction
+                    TxAbort();
                 }
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
@@ -129,6 +142,9 @@ namespace PADIDSTM
                 catch (SocketException)
                 {
                     masterServ.declareSlaveFailed(entry.Value);
+                    Thread.Sleep(2000);
+                    //Makes Second attemp to abort transaction
+                    TxAbort();
                 }
             }
             masterServ.removeUID(UIDsToRemove);
@@ -219,7 +235,11 @@ namespace PADIDSTM
             }
             catch (SocketException)
             {
-                masterServ.declareSlaveFailed(url[0]);
+                bool res = masterServ.declareSlaveFailed(url[0]);
+                Thread.Sleep(5000);
+                //Makes Second attemp to access padInt
+                RemotePadInt[] rpi = AccessRemotePadInt(uid);
+                return rpi;
             }
             try
             {
@@ -228,6 +248,10 @@ namespace PADIDSTM
             catch (SocketException)
             {
                 masterServ.declareSlaveFailed(url[1]);
+                Thread.Sleep(5000);
+                //Makes Second attemp to access padInt
+                RemotePadInt[] rpi = AccessRemotePadInt(uid);
+                return rpi;
             }
             return remotePadInts;
         }

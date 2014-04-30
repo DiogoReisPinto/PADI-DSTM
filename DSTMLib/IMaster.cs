@@ -17,7 +17,8 @@ namespace PADIDSTM
         int getTransactionID();
         void callStatusOnSlaves();
         void removeUID(List<int> UIDsToRemove);
-        void declareSlaveFailed(string serverUrlFailed);
+        bool declareSlaveFailed(string serverUrlFailed);
+        void printSomeShit(string toPrint);
 
     }
 }

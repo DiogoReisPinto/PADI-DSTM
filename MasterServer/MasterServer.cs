@@ -122,9 +122,6 @@ namespace MasterServer
                 padIntLocation[uid][1] = serverURL;
                 serversLoad[serverURL]++;
             }
-
-            Console.WriteLine("REGISTER New PAD LOCATION: " + padIntLocation[uid][0]);
-            Console.WriteLine("REGISTER New PAD LOCATION: " + padIntLocation[uid][1]);
             updateForm();
         }
 
@@ -145,7 +142,15 @@ namespace MasterServer
                 ISlave server = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                slave);
-                server.status();
+                try
+                {
+                    server.status();
+                }
+                catch (SocketException)
+                {
+                    Console.WriteLine("Server with url {0} is unavailable", slave);
+                    continue;
+                }
             }
         }
 
@@ -186,7 +191,7 @@ namespace MasterServer
 
         }
 
-        public void declareSlaveFailed(string serverUrlFailed)
+        public bool declareSlaveFailed(string serverUrlFailed)
         {
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
@@ -230,8 +235,14 @@ namespace MasterServer
                 updateForm();
 
             }
+            return true;
 
 
+        }
+
+        public void printSomeShit(string toPrint)
+        {
+            Console.WriteLine(toPrint);
         }
     }
 

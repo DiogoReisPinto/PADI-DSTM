@@ -1,1 +1,2 @@
 C:\Users\Andre\Documents\GitHub\PADI-DSTM\Project1\bin\Debug\Project1.exe.config
+C:\Users\Diogo\Source\Repos\PADI-DSTM\Client2\bin\Debug\Project1.exe.config
