@@ -154,8 +154,10 @@ namespace MasterServer
             foreach (int id in UIDsToRemove)
             {
                 string[] url = padIntLocation[id];
-                serversLoad[url[0]]--;
-                serversLoad[url[1]]--;
+                if(serversLoad[url[0]]>0)
+                    serversLoad[url[0]]--;
+                if(serversLoad[url[1]]>0)
+                    serversLoad[url[1]]--;
                 padIntLocation.Remove(id);
                 ISlave server1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
@@ -163,15 +165,8 @@ namespace MasterServer
                 ISlave server2 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                    url[1]);
-                try
-                {
-                    server1.removePadInt(id);
-                    server2.removePadInt(id);
-                }
-                catch (SocketException)
-                {
-                    //DO NOTHING BECAUSE WE DO NOT NEED TO REMOVE A PADINT FROM A SERVER THAT IS NOT AVAILABLE
-                }
+                server1.removePadInt(id);
+                server2.removePadInt(id);
             }
 
             updateForm();
@@ -212,6 +207,7 @@ namespace MasterServer
                     RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
                     slaveToCreate.addCopyOfPadInt(newPadInt);
                     entry.Value[0] = newURL;
+                    serversLoad[newURL]++;
                 }
                 //CASO EM QUE E O SEGUNDO A ESTAR DOWN
                 else if(entry.Value[1]==serverUrlFailed)
@@ -229,6 +225,7 @@ namespace MasterServer
                     RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
                     slaveToCreate.addCopyOfPadInt(newPadInt);
                     entry.Value[1] = newURL;
+                    serversLoad[newURL]++;
                 }
                 updateForm();
 

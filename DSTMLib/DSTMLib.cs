@@ -212,7 +212,7 @@ namespace PADIDSTM
                                    typeof(ISlave),
                                url[1]);
 
-            //HERE SHOULD WE VERIFY THE STATE OF THE BOTH SERVERS OR WE ONLY ACCESS ONE AND RETURN IT?
+            
             try
             {
                 remotePadInts[0] = slave1.access(uid, tsValue);
