@@ -19,6 +19,7 @@ namespace PADIDSTM
         void removeUID(List<int> UIDsToRemove);
         bool declareSlaveFailed(string serverUrlFailed);
         void printSomeShit(string toPrint);
+        void updateLoad(string slaveUrl, int load);
 
     }
 }

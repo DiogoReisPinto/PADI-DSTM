@@ -21,7 +21,7 @@ namespace PADIDSTM
         public bool isCommited;
         public long creatorTID;
         public TVersion preparedCommit;
-        public bool failOrFreezed = false;
+        public bool freezed = false;
         
 
 
@@ -58,12 +58,12 @@ namespace PADIDSTM
             this.isCommited = availablePadInt.isCommited;
             this.creatorTID = availablePadInt.creatorTID;
             this.preparedCommit = availablePadInt.preparedCommit;
-            this.failOrFreezed = availablePadInt.failOrFreezed;
+            this.freezed = availablePadInt.freezed;
         }
 
         public int Read(string ts)
         {
-            while (failOrFreezed) { }
+            while (freezed) { }
             long tc = Convert.ToInt64(ts.Split('#')[0]);
             int tieBreaker = Convert.ToInt32(ts.Split('#')[1]);
             ISlave server = (ISlave)Activator.GetObject(
@@ -109,7 +109,7 @@ namespace PADIDSTM
 
         public bool Write(int value, string ts)
         {
-            while (failOrFreezed) { }
+            while (freezed) { }
             Console.WriteLine("uid:" + uid + " ts: " + ts);
             string[] txID = ts.Split('#');
 
@@ -151,7 +151,7 @@ namespace PADIDSTM
 
         public int abortTx(long txID)
         {
-            while (failOrFreezed) { }
+            while (freezed) { }
             List<TVersion> toRemove = new List<TVersion>();
             foreach (TVersion tv in tentativeVersions)
             {
@@ -167,7 +167,7 @@ namespace PADIDSTM
 
         public int prepareCommitTx(long txID)
         {
-            while (failOrFreezed) { }
+            while (freezed) { }
             foreach (TVersion tv in tentativeVersions)
             {
                 if (tv.writeTS == txID)
@@ -200,14 +200,14 @@ namespace PADIDSTM
             return 1;
         }
 
-        public void FreezeOrFail()
+        public void Freeze()
         {
-            this.failOrFreezed = true;
+            this.freezed = true;
         }
 
         public void Recover()
         {
-            this.failOrFreezed = false;
+            this.freezed = false;
         }
     }
 }

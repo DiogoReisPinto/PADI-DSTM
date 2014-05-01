@@ -67,7 +67,8 @@ namespace SlaveServer
         //tid==0 is from a call for copy padint - tolerant version
         public RemotePadInt access(int uid,long tid)
         {
-            while (freezed || failed) { };
+
+            while (freezed) { };
             RemotePadInt req = padIntObjects[uid];
             if (tid == req.creatorTID || tid==0)
                 return req;
@@ -91,7 +92,7 @@ namespace SlaveServer
 
         public RemotePadInt create(int uid, long tid)
         {
-            while (freezed || failed) { };
+            while (freezed) { };
             RemotePadInt newPadInt = new RemotePadInt(uid, url);
             newPadInt.creatorTID = tid;
             padIntObjects.Add(uid, newPadInt);
@@ -110,7 +111,7 @@ namespace SlaveServer
             freezed = true;
             foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
             {
-                entry.Value.FreezeOrFail();
+                entry.Value.Freeze();
             }
 
         }
@@ -120,7 +121,7 @@ namespace SlaveServer
             failed = true;
             foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
             {
-                entry.Value.FreezeOrFail();
+                //entry.Value.FreezeOrFail();
             }
         }
 
@@ -131,6 +132,8 @@ namespace SlaveServer
             {
                 entry.Value.Recover();
             }
+            Console.WriteLine("Will send update load with url:{0} and load:{1}", url, padIntObjects.Count);
+            masterServ.updateLoad(url, padIntObjects.Count);
         }
         public void status()
         {

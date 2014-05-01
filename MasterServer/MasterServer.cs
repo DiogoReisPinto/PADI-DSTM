@@ -186,6 +186,12 @@ namespace MasterServer
             form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
         }
 
+        private void updateForm2()
+        {
+            
+            form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
+        }
+
         public override object InitializeLifetimeService()
         {
 
@@ -218,7 +224,7 @@ namespace MasterServer
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
                 //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN
-                serversLoad.Remove(serverUrlFailed);
+                serversLoad[serverUrlFailed] = int.MaxValue;
                 if (entry.Value[0] == serverUrlFailed)
                 {
                     entry.Value[0] = "UNDEFINED";
@@ -265,6 +271,13 @@ namespace MasterServer
         public void printSomeShit(string toPrint)
         {
             Console.WriteLine(toPrint);
+        }
+
+        public void updateLoad(string slaveUrl, int load)
+        {
+            serversLoad[slaveUrl] = load;
+            updateForm();
+            return;
         }
     }
 

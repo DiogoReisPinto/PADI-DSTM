@@ -27,7 +27,7 @@ namespace PADIDSTM
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
             IDictionary props = new Hashtable();
             props["port"] = 0;
-            props["timeout"] = 5000; // in milliseconds
+            props["timeout"] = 4000; // in milliseconds
             TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
@@ -62,7 +62,6 @@ namespace PADIDSTM
                }
                catch (SocketException){
                    masterServ.declareSlaveFailed(entry.Value);
-                   Thread.Sleep(2000);
                    //Make another try to commit transaction
                    TxCommit();
                }
@@ -74,13 +73,11 @@ namespace PADIDSTM
                     }
                     catch (SocketException){
                         masterServ.declareSlaveFailed(entry.Value);
-                        Thread.Sleep(2000);
                         //Make another attemp to commit transaction
                         TxCommit();
                     }
                     catch (IOException) {
                         masterServ.declareSlaveFailed(entry.Value);
-                        Thread.Sleep(2000);
                         //Make another attemp to commit transaction
                         TxCommit();
                     }
@@ -129,7 +126,6 @@ namespace PADIDSTM
                 catch (SocketException)
                 {
                     masterServ.declareSlaveFailed(entry.Value);
-                    Thread.Sleep(2000);
                     //Makes Second attemp to abort transaction
                     TxAbort();
                 }
@@ -144,7 +140,6 @@ namespace PADIDSTM
                 catch (SocketException)
                 {
                     masterServ.declareSlaveFailed(entry.Value);
-                    Thread.Sleep(2000);
                     //Makes Second attemp to abort transaction
                     TxAbort();
                 }
@@ -242,7 +237,14 @@ namespace PADIDSTM
             catch (SocketException)
             {
                 bool res = masterServ.declareSlaveFailed(url[0]);
-                Thread.Sleep(5000);
+                //Makes Second attemp to access padInt
+                RemotePadInt[] rpi = AccessRemotePadInt(uid);
+                return rpi;
+            }
+            catch (IOException)
+            {
+                masterServ.printSomeShit("IM HERE MOTHAFUCKERS!");
+                bool res = masterServ.declareSlaveFailed(url[0]);
                 //Makes Second attemp to access padInt
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);
                 return rpi;
@@ -254,15 +256,14 @@ namespace PADIDSTM
             catch (SocketException)
             {
                 masterServ.declareSlaveFailed(url[1]);
-                Thread.Sleep(5000);
                 //Makes Second attemp to access padInt
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);
                 return rpi;
             }
             catch (IOException)
             {
+                masterServ.printSomeShit("IM HERE MOTHAFUCKERS!");
                 masterServ.declareSlaveFailed(url[1]);
-                Thread.Sleep(5000);
                 //Makes Second attemp to access padInt
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);
                 return rpi;
