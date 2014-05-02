@@ -27,7 +27,7 @@ namespace PADIDSTM
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
             IDictionary props = new Hashtable();
             props["port"] = 0;
-            //props["timeout"] = 4000; // in milliseconds
+            props["timeout"] = 4000; // in milliseconds
             TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
@@ -190,18 +190,59 @@ namespace PADIDSTM
             string[] url = masterServ.GetLocationNewPadInt(uid);
             if (url == null)
                 return null;
+            RemotePadInt[] RPadInts = CreateRemotePadInt(uid);
+            PadInt newPad = new PadInt(RPadInts[0].uid);
+            createdPadInts.Add(RPadInts[0], url[0]);
+            createdPadInts.Add(RPadInts[1], url[1]);
+            return newPad;
+        }
+
+        public static RemotePadInt[] CreateRemotePadInt(int uid){
+            string[] url = masterServ.GetLocationNewPadInt(uid);
             ISlave slave1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url[0]);
             ISlave slave2 = (ISlave)Activator.GetObject(
                                   typeof(ISlave),
-                              url[1]); 
-            RemotePadInt newRemotePadInt1 = slave1.create(uid,tsValue);
-            RemotePadInt newRemotePadInt2 = slave2.create(uid, tsValue);
-            PadInt newPad = new PadInt(newRemotePadInt1.uid);
-            createdPadInts.Add(newRemotePadInt1,url[0]);
-            createdPadInts.Add(newRemotePadInt2,url[1]);
-            return newPad;
+                              url[1]);
+            RemotePadInt[] newRemotePadInts = new RemotePadInt[2];
+            try
+            {
+                newRemotePadInts[0] = slave1.create(uid, tsValue);
+            }
+            catch (SocketException)
+            {
+                bool res = masterServ.declareSlaveFailed(url[0]);
+                //Makes Second attemp to access padInt
+                RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
+                return retriedRemotePadInt;
+            }
+            catch (IOException)
+            {
+                bool res = masterServ.declareSlaveFailed(url[0]);
+                //Makes Second attemp to access padInt
+                RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
+                return retriedRemotePadInt;
+            }
+            try
+            {
+                newRemotePadInts[1] = slave2.create(uid, tsValue);
+            }
+            catch (SocketException)
+            {
+                bool res = masterServ.declareSlaveFailed(url[1]);
+                //Makes Second attemp to access padInt
+                RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
+                return retriedRemotePadInt;
+            }
+            catch (IOException)
+            {
+                bool res = masterServ.declareSlaveFailed(url[1]);
+                //Makes Second attemp to access padInt
+                RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
+                return retriedRemotePadInt;
+            }
+            return newRemotePadInts;
         }
 
 

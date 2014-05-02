@@ -32,6 +32,7 @@ namespace SlaveServer
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
             props["port"] = 0;
+            props["timeout"] = 4000;
             TcpChannel channel = new TcpChannel(props, null, provider);
 
             ChannelServices.RegisterChannel(channel, true);
