@@ -27,7 +27,7 @@ namespace PADIDSTM
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
             IDictionary props = new Hashtable();
             props["port"] = 0;
-            props["timeout"] = 4000; // in milliseconds
+            //props["timeout"] = 4000; // in milliseconds
             TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
@@ -53,12 +53,14 @@ namespace PADIDSTM
         public static bool TxCommit()
         {
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
+            masterServ.printSomeShit("Expected Acks:" + Convert.ToString(expectedVotes));
             int votes = 0;
             //PREPARE MESSAGES FOR COMMITING ON FIRST PHASE 2PC
             foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
                try{
                    votes = votes +  entry.Key.prepareCommitTx(tsValue);
+                   
                }
                catch (SocketException){
                    masterServ.declareSlaveFailed(entry.Value);
@@ -70,16 +72,19 @@ namespace PADIDSTM
             {
                     try{
                         votes = votes + entry.Key.prepareCommitPadInt(tsValue);
+                        masterServ.printSomeShit("Votes Aquired:" + Convert.ToString(votes));
                     }
                     catch (SocketException){
                         masterServ.declareSlaveFailed(entry.Value);
                         //Make another attemp to commit transaction
-                        TxCommit();
+                        TxAbort();
+                        return false;
                     }
                     catch (IOException) {
                         masterServ.declareSlaveFailed(entry.Value);
                         //Make another attemp to commit transaction
-                        TxCommit();
+                        TxAbort();
+                        return false;
                     }
                 }
            
@@ -114,6 +119,7 @@ namespace PADIDSTM
         }
 
         public static bool TxAbort() {
+            masterServ.printSomeShit("Entrei no Abort");
             List<int> UIDsToRemove = new List<int>();
             int acks = 0;
             int expectedAcks= visitedPadInts.Count + createdPadInts.Count;
@@ -126,8 +132,7 @@ namespace PADIDSTM
                 catch (SocketException)
                 {
                     masterServ.declareSlaveFailed(entry.Value);
-                    //Makes Second attemp to abort transaction
-                    TxAbort();
+                    //TxAbort();
                 }
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
@@ -140,8 +145,6 @@ namespace PADIDSTM
                 catch (SocketException)
                 {
                     masterServ.declareSlaveFailed(entry.Value);
-                    //Makes Second attemp to abort transaction
-                    TxAbort();
                 }
             }
             masterServ.removeUID(UIDsToRemove);

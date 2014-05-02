@@ -206,7 +206,11 @@ namespace PADIDSTM
         }
 
         public int prepareCommitPadInt(long txID) {
-            //VALERA A PENA TER ISTO?
+            while (freezed) { }
+            while (failed)
+            {
+                while (true) { }
+            }
             return 1;
         }
 

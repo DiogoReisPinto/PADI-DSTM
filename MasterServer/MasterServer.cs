@@ -158,6 +158,10 @@ namespace MasterServer
 
         public void removeUID(List<int> UIDsToRemove)
         {
+            foreach (KeyValuePair<int, string[]> item in padIntLocation)
+            {
+                Console.WriteLine("PadInt with id {0} on server {1}", item.Key, item.Value);
+            }
             foreach (int id in UIDsToRemove)
             {
                 string[] url = padIntLocation[id];
@@ -271,7 +275,6 @@ namespace MasterServer
         public bool updateLoad(string slaveUrl, int load)
         {
             serversLoad[slaveUrl] = load;
-            //form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
             return true;
         }
 

@@ -35,10 +35,13 @@ namespace Client
             }
             else
             {
-                DSTMLib.TxCommit();
+                bool resCommit = DSTMLib.TxCommit();
                 
                 transaction = false;
-                log("Transaction commited");
+                if (resCommit)
+                    log("Transaction commited");
+                else
+                    log("Transaction aborted");
                 setAccessButtons(false);
             }
             setPadIntButtons();
