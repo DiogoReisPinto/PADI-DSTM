@@ -22,6 +22,7 @@ namespace PADIDSTM
         public long creatorTID;
         public TVersion preparedCommit;
         public bool freezed = false;
+        public bool failed = false;
         
 
 
@@ -64,6 +65,9 @@ namespace PADIDSTM
         public int Read(string ts)
         {
             while (freezed) { }
+            while (failed) { 
+                while (true){ } 
+            }
             long tc = Convert.ToInt64(ts.Split('#')[0]);
             int tieBreaker = Convert.ToInt32(ts.Split('#')[1]);
             ISlave server = (ISlave)Activator.GetObject(
@@ -110,6 +114,10 @@ namespace PADIDSTM
         public bool Write(int value, string ts)
         {
             while (freezed) { }
+            while (failed)
+            {
+                while (true) { }
+            }
             Console.WriteLine("uid:" + uid + " ts: " + ts);
             string[] txID = ts.Split('#');
 
@@ -152,6 +160,10 @@ namespace PADIDSTM
         public int abortTx(long txID)
         {
             while (freezed) { }
+            while (failed)
+            {
+                while (true) { }
+            }
             List<TVersion> toRemove = new List<TVersion>();
             foreach (TVersion tv in tentativeVersions)
             {
@@ -168,6 +180,10 @@ namespace PADIDSTM
         public int prepareCommitTx(long txID)
         {
             while (freezed) { }
+            while (failed)
+            {
+                while (true) { }
+            }
             foreach (TVersion tv in tentativeVersions)
             {
                 if (tv.writeTS == txID)
@@ -205,9 +221,15 @@ namespace PADIDSTM
             this.freezed = true;
         }
 
+        public void Fail()
+        {
+            this.failed = true;
+        }
+
         public void Recover()
         {
             this.freezed = false;
+            this.failed = false;
         }
     }
 }

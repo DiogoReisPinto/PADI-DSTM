@@ -186,11 +186,6 @@ namespace MasterServer
             form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
         }
 
-        private void updateForm2()
-        {
-            
-            form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
-        }
 
         public override object InitializeLifetimeService()
         {
@@ -273,11 +268,16 @@ namespace MasterServer
             Console.WriteLine(toPrint);
         }
 
-        public void updateLoad(string slaveUrl, int load)
+        public bool updateLoad(string slaveUrl, int load)
         {
             serversLoad[slaveUrl] = load;
-            updateForm();
-            return;
+            //form.Invoke(new delServerLoad(form.updateServerLoad), new Object[] { this.serversLoad });
+            return true;
+        }
+
+        public int getLoad(string slaveUrl)
+        {
+            return serversLoad[slaveUrl];
         }
     }
 

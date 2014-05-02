@@ -50,7 +50,17 @@ namespace MasterServer
             this.ServerLocationLoad.Items.Clear();
             foreach (KeyValuePair<string, int> server in serversLoad)
             {
-                string[] values = {server.Key, Convert.ToString(server.Value)};
+                string[] values = new String[2];
+                if (server.Value == int.MaxValue)
+                {
+                    values[0] =server.Key;
+                    values[1] = "UNAVAILABLE";
+                }
+                else
+                {
+                    values[0] = server.Key;
+                    values[1] = Convert.ToString(server.Value);
+                }
                 var listItem = new ListViewItem(values);
                 this.ServerLocationLoad.Items.Add(listItem);
             }
@@ -83,6 +93,8 @@ namespace MasterServer
             string url = ServerLocationLoad.SelectedItems[0].Text;
             log("Recovering server at " + url);
             DSTMLib.Recover(url);
+            int val = DSTMLib.getServerLoad(url);
+            ServerLocationLoad.SelectedItems[0].SubItems[1].Text = Convert.ToString(val);
         }
 
         private void ServerLocationLoad_SelectedIndexChanged(object sender, EventArgs e)
@@ -94,9 +106,10 @@ namespace MasterServer
 
         private void FreezeBtn_Click(object sender, EventArgs e)
         {
-            string url = ServerLocationLoad.SelectedItems[0].Text;
+            string url = ServerLocationLoad.SelectedItems[0].Text; 
             log("Delaying server at " + url);
             DSTMLib.Freeze(url);
+            ServerLocationLoad.SelectedItems[0].SubItems[1].Text = "UNAVAILABLE";
         }
 
         private void FailBtn_Click(object sender, EventArgs e)
@@ -104,6 +117,7 @@ namespace MasterServer
             string url = ServerLocationLoad.SelectedItems[0].Text;
             log("Crashing server at " + url);
             DSTMLib.Fail(url);
+            ServerLocationLoad.SelectedItems[0].SubItems[1].Text = "UNAVAILABLE";
         }
 
         private void button1_Click(object sender, EventArgs e)

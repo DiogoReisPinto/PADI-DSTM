@@ -212,6 +212,12 @@ namespace PADIDSTM
             return newPad;
         }
 
+        public static int getServerLoad(string url)
+        {
+            int load = masterServ.getLoad(url);
+            return load;
+        }
+
 
         public static RemotePadInt[] AccessRemotePadInt(int uid) {
             string[] url = masterServ.DiscoverPadInt(uid);

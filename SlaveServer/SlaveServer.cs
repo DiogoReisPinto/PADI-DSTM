@@ -68,7 +68,11 @@ namespace SlaveServer
         public RemotePadInt access(int uid,long tid)
         {
 
-            while (freezed) { };
+            while (freezed) { }
+            while (failed)
+            {
+                while (true) { }
+            }
             RemotePadInt req = padIntObjects[uid];
             if (tid == req.creatorTID || tid==0)
                 return req;
@@ -92,7 +96,11 @@ namespace SlaveServer
 
         public RemotePadInt create(int uid, long tid)
         {
-            while (freezed) { };
+            while (freezed) { }
+            while (failed)
+            {
+                while (true) { }
+            }
             RemotePadInt newPadInt = new RemotePadInt(uid, url);
             newPadInt.creatorTID = tid;
             padIntObjects.Add(uid, newPadInt);
@@ -121,7 +129,7 @@ namespace SlaveServer
             failed = true;
             foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
             {
-                //entry.Value.FreezeOrFail();
+                entry.Value.Fail();
             }
         }
 
