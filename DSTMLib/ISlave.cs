@@ -12,5 +12,7 @@ namespace PADIDSTM
         void status();
         void checkStatus();
         void removePadInt(int id);
+
+        
     }
 }

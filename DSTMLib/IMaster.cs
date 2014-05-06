@@ -23,5 +23,14 @@ namespace PADIDSTM
 
         int getLoad(string slaveUrl);
 
+        void addToFreezedOrFailedServers(string url);
+
+        void removeFromFreezedOrFailedServers(string url);
+
+        void addTransactionToAbort(RemotePadInt remotePadInt, long tsValue);
+
+        void recoverSlave();
+
+        void addPadIntToRemoveFromFailed(int uid);
     }
 }

@@ -65,7 +65,8 @@ namespace PADIDSTM
                catch (SocketException){
                    masterServ.declareSlaveFailed(entry.Value);
                    //Make another try to commit transaction
-                   TxCommit();
+                   TxAbort();
+                   return false;
                }
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
@@ -75,14 +76,22 @@ namespace PADIDSTM
                         masterServ.printSomeShit("Votes Aquired:" + Convert.ToString(votes));
                     }
                     catch (SocketException){
+                        masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
+                        masterServ.printSomeShit("");
+                        masterServ.printSomeShit("ADDED TRANSACTION TO ABORT OF REMOTEPADINT: " + entry.Key.uid);
                         masterServ.declareSlaveFailed(entry.Value);
-                        //Make another attemp to commit transaction
+                        //masterServ.declareSlaveFailed(entry.Value);
+                        //Aborts the current transactionn
                         TxAbort();
                         return false;
                     }
                     catch (IOException) {
+                        masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
+                        masterServ.printSomeShit("");
+                        masterServ.printSomeShit("ADDED TRANSACTION TO ABORT OF REMOTEPADINT: " + entry.Key.uid);
                         masterServ.declareSlaveFailed(entry.Value);
-                        //Make another attemp to commit transaction
+                        masterServ.declareSlaveFailed(entry.Value);
+                        //Aborts the current transaction
                         TxAbort();
                         return false;
                     }
@@ -129,9 +138,14 @@ namespace PADIDSTM
                 {
                     acks += entry.Key.abortTx(tsValue);
                 }
-                catch (SocketException)
+                catch (IOException)
                 {
+                    masterServ.addTransactionToAbort(entry.Key, tsValue);
+                    masterServ.printSomeShit("");
+                    masterServ.printSomeShit("ADDED TRANSACTION TO ABORT OF REMOTEPADINT: " + entry.Key + " WITH TS: " + tsValue);
                     masterServ.declareSlaveFailed(entry.Value);
+                    
+
                     //TxAbort();
                 }
             }
@@ -142,9 +156,13 @@ namespace PADIDSTM
                     UIDsToRemove.Add(entry.Key.uid);
                     acks++;
                 }
-                catch (SocketException)
+                catch (IOException)
                 {
+                    masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
+                    masterServ.printSomeShit("");
+                    masterServ.printSomeShit("ADDED TRANSACTION TO ABORT OF REMOTEPADINT: " + entry.Key.uid);
                     masterServ.declareSlaveFailed(entry.Value);
+                    
                 }
             }
             masterServ.removeUID(UIDsToRemove);
@@ -166,6 +184,7 @@ namespace PADIDSTM
                 typeof(ISlave),
                 url);
             slave.fail();
+            masterServ.addToFreezedOrFailedServers(url);
             return true;
         }
 
@@ -174,6 +193,7 @@ namespace PADIDSTM
                                    typeof(ISlave),
                                url);
             slave.freeze();
+            masterServ.addToFreezedOrFailedServers(url);
             return true;
         }
 
@@ -183,22 +203,30 @@ namespace PADIDSTM
                   typeof(ISlave),
                   url);
             slave.recover();
+            masterServ.recoverSlave();
+            masterServ.removeFromFreezedOrFailedServers(url);
             return true;  
         }
 
         public static PadInt CreatePadInt(int uid) {
-            string[] url = masterServ.GetLocationNewPadInt(uid);
-            if (url == null)
-                return null;
             RemotePadInt[] RPadInts = CreateRemotePadInt(uid);
+            if (RPadInts == null)
+                return null;
             PadInt newPad = new PadInt(RPadInts[0].uid);
-            createdPadInts.Add(RPadInts[0], url[0]);
-            createdPadInts.Add(RPadInts[1], url[1]);
+            createdPadInts.Add(RPadInts[0], RPadInts[0].url);
+            createdPadInts.Add(RPadInts[1], RPadInts[1].url);
             return newPad;
         }
 
         public static RemotePadInt[] CreateRemotePadInt(int uid){
-            string[] url = masterServ.GetLocationNewPadInt(uid);
+            masterServ.printSomeShit("Enter Create RemotePadInt with uid: " + uid);
+            string[] url = new String[2];
+            url = masterServ.GetLocationNewPadInt(uid);
+            if (url == null)
+            {
+                masterServ.printSomeShit("GetLocationNewPadInt returned null indicating that PadInt with id already exists:" + uid);
+                return null;
+            }
             ISlave slave1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url[0]);
@@ -212,17 +240,21 @@ namespace PADIDSTM
             }
             catch (SocketException)
             {
+                masterServ.printSomeShit("Declared that server with url:" + url[0] + "is unavailable on creating PadInt with ID:" + uid);
                 bool res = masterServ.declareSlaveFailed(url[0]);
                 //Makes Second attemp to access padInt
-                RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
-                return retriedRemotePadInt;
+                //RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
+                //return retriedRemotePadInt;
+                return null;
             }
             catch (IOException)
             {
+                masterServ.printSomeShit("Declared that server with url:" + url[0] + "is unavailable on creating PadInt with ID:" + uid);
                 bool res = masterServ.declareSlaveFailed(url[0]);
                 //Makes Second attemp to access padInt
-                RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
-                return retriedRemotePadInt;
+                //RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
+                //return retriedRemotePadInt;
+                return null;
             }
             try
             {
@@ -230,17 +262,21 @@ namespace PADIDSTM
             }
             catch (SocketException)
             {
+                masterServ.printSomeShit("Declared that server with url:" + url[1] + "is unavailable on creating PadInt with ID:" + uid);
                 bool res = masterServ.declareSlaveFailed(url[1]);
                 //Makes Second attemp to access padInt
-                RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
-                return retriedRemotePadInt;
+                //RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
+                //return retriedRemotePadInt;
+                return null;
             }
             catch (IOException)
             {
+                masterServ.printSomeShit("Declared that server with url:" + url[1] + "is unavailable on creating PadInt with ID:" + uid);
                 bool res = masterServ.declareSlaveFailed(url[1]);
                 //Makes Second attemp to access padInt
-                RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
-                return retriedRemotePadInt;
+                //RemotePadInt[] retriedRemotePadInt = CreateRemotePadInt(uid);
+                //return retriedRemotePadInt;
+                return null;
             }
             return newRemotePadInts;
         }
@@ -293,7 +329,6 @@ namespace PADIDSTM
             }
             catch (IOException)
             {
-                masterServ.printSomeShit("IM HERE MOTHAFUCKERS!");
                 bool res = masterServ.declareSlaveFailed(url[0]);
                 //Makes Second attemp to access padInt
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);

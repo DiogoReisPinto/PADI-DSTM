@@ -16,7 +16,7 @@ namespace SlaveServer
     public class SlaveServer
     {
 
-        private static string url;
+        public static string url;
         private static IMaster masterServ;
         
         static void Main()
@@ -171,6 +171,7 @@ namespace SlaveServer
         public void removePadInt(int id)
         {
             padIntObjects.Remove(id);
+            masterServ.printSomeShit("I HAVE ENTERED IN REMOVEPADINT! on URL: " + SlaveServer.url);
         }
     }
 

@@ -220,6 +220,8 @@ namespace PADIDSTM
             return 1;
         }
 
+        
+
         public void Freeze()
         {
             this.freezed = true;
