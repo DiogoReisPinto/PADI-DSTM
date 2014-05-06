@@ -11,6 +11,8 @@ using System.Runtime.Remoting.Channels.Tcp;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.Serialization.Formatters;
+using System.Collections;
 
 namespace MasterServer
 {
@@ -23,8 +25,12 @@ namespace MasterServer
         public Form1()
         {
             InitializeComponent();
-
-            TcpChannel channel = new TcpChannel(8086);
+            BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
+            provider.TypeFilterLevel = TypeFilterLevel.Full;
+            IDictionary props = new Hashtable();
+            props["port"] = 8086;
+            //props["timeout"] = "4000";
+            TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             RemoteMaster master = new RemoteMaster(this);
             DSTMLib.masterServ = master; 

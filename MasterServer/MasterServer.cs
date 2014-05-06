@@ -206,7 +206,18 @@ namespace MasterServer
 
         public void addTransactionToAbort(RemotePadInt rpi, long ts)
         {
-          transactionsToAbort[rpi].Add(ts);  
+            if (transactionsToAbort.ContainsKey(rpi))
+            {
+                transactionsToAbort[rpi].Add(ts);
+
+            }
+            else
+            {
+                transactionsToAbort.Add(rpi, new List<long>());
+                transactionsToAbort[rpi].Add(ts);
+            }
+
+
         }
 
         public void addPadIntToRemoveFromFailed(int uid)

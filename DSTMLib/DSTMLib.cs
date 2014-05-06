@@ -25,6 +25,7 @@ namespace PADIDSTM
 
         public static bool Init() {
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
+            provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
             props["port"] = 0;
             props["timeout"] = 4000; // in milliseconds
@@ -63,16 +64,18 @@ namespace PADIDSTM
                    
                }
                catch (SocketException){
+                   TxAbort();
                    masterServ.declareSlaveFailed(entry.Value);
                    //Make another try to commit transaction
-                   TxAbort();
+                   
                    return false;
                }
                catch (IOException)
                {
+                   TxAbort();
                    masterServ.declareSlaveFailed(entry.Value);
                    //Make another try to commit transaction
-                   TxAbort();
+                   
                    return false;
                }
             }
@@ -86,15 +89,12 @@ namespace PADIDSTM
                         TxAbort();
                         masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
                         masterServ.declareSlaveFailed(entry.Value);
-                        //masterServ.declareSlaveFailed(entry.Value);
-                        //Aborts the current transactionn
                         return false;
                     }
                     catch (IOException) {
                         TxAbort();
                         masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
                         masterServ.declareSlaveFailed(entry.Value);
-                        //Aborts the current transaction
                         return false;
                     }
                 }
@@ -143,26 +143,21 @@ namespace PADIDSTM
                 catch (IOException)
                 {
                     masterServ.addTransactionToAbort(entry.Key, tsValue);
-                    masterServ.printSomeShit("");
-                    masterServ.printSomeShit("ADDED TRANSACTION TO ABORT OF REMOTEPADINT: " + entry.Key + " WITH TS: " + tsValue);
                     masterServ.declareSlaveFailed(entry.Value);
-                    
-
-                    //TxAbort();
                 }
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
             {
                 try
                 {
-                    UIDsToRemove.Add(entry.Key.uid);
+                    UIDsToRemove.Add(entry.Key.getUID());
+                    masterServ.printSomeShit("added uid to remove with id: " + entry.Key.url);
                     acks++;
                 }
                 catch (IOException)
                 {
+                    masterServ.printSomeShit("addPadIntToRemoveFromFailed with id: " + entry.Key.uid);
                     masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
-                    masterServ.printSomeShit("");
-                    masterServ.printSomeShit("ADDED TRANSACTION TO ABORT OF REMOTEPADINT: " + entry.Key.uid);
                     masterServ.declareSlaveFailed(entry.Value);
                     
                 }
@@ -205,7 +200,6 @@ namespace PADIDSTM
                   typeof(ISlave),
                   url);
             slave.recover();
-            masterServ.recoverSlave();
             masterServ.removeFromFreezedOrFailedServers(url);
             return true;  
         }

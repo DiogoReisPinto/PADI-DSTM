@@ -62,6 +62,15 @@ namespace PADIDSTM
             this.freezed = availablePadInt.freezed;
         }
 
+        public int getUID(){
+            while (freezed) { }
+            while (failed)
+            {
+                while (true) { }
+            }
+            return this.uid;
+        }
+
         public int Read(string ts)
         {
             while (freezed) { }

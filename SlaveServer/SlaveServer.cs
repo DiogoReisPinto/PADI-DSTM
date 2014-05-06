@@ -141,6 +141,7 @@ namespace SlaveServer
             {
                 entry.Value.Recover();
             }
+            masterServ.recoverSlave();
             Console.WriteLine("Will send update load with url:{0} and load:{1}", url, padIntObjects.Count);
             masterServ.updateLoad(url, padIntObjects.Count);
         }
