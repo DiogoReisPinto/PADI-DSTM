@@ -142,6 +142,7 @@ namespace MasterServer
                                    urlFailed);
                 slave.removePadInt(uidToRemove);
             }
+            updateForm();
 
         }
 
@@ -246,7 +247,7 @@ namespace MasterServer
                 }
             }
 
-            updateForm();
+           
 
         }
 
