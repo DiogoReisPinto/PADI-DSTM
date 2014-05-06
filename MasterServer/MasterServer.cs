@@ -142,7 +142,6 @@ namespace MasterServer
                                    urlFailed);
                 slave.removePadInt(uidToRemove);
             }
-            updateForm();
 
         }
 
@@ -234,15 +233,11 @@ namespace MasterServer
                     ISlave server2 = (ISlave)Activator.GetObject(
                                        typeof(ISlave),
                                        url[1]);
-                    try
-                    {
+                   
                         server1.removePadInt(id);
                         server2.removePadInt(id);
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!");
-                    }
+                   
+                
                     
                 }
             }
@@ -288,10 +283,11 @@ namespace MasterServer
         public bool declareSlaveFailed(string serverUrlFailed)
         {
             Console.WriteLine("ENTREI NO DECLARE SLAVE FAILED!");
+            serversLoad[serverUrlFailed] = int.MaxValue;
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
                 //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN
-                serversLoad[serverUrlFailed] = int.MaxValue;
+                
                 if (entry.Value[0] == serverUrlFailed)
                 {
                     Console.WriteLine("Trying to find URL to exchange with url:{0}", serverUrlFailed);
@@ -329,9 +325,10 @@ namespace MasterServer
                     entry.Value[1] = newURL;
                     serversLoad[newURL]++;
                 }
-                updateForm();
+                
 
             }
+            updateForm();
             return true;
 
 

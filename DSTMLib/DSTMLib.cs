@@ -68,6 +68,13 @@ namespace PADIDSTM
                    TxAbort();
                    return false;
                }
+               catch (IOException)
+               {
+                   masterServ.declareSlaveFailed(entry.Value);
+                   //Make another try to commit transaction
+                   TxAbort();
+                   return false;
+               }
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
             {
@@ -76,23 +83,18 @@ namespace PADIDSTM
                         masterServ.printSomeShit("Votes Aquired:" + Convert.ToString(votes));
                     }
                     catch (SocketException){
+                        TxAbort();
                         masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
-                        masterServ.printSomeShit("");
-                        masterServ.printSomeShit("ADDED TRANSACTION TO ABORT OF REMOTEPADINT: " + entry.Key.uid);
                         masterServ.declareSlaveFailed(entry.Value);
                         //masterServ.declareSlaveFailed(entry.Value);
                         //Aborts the current transactionn
-                        TxAbort();
                         return false;
                     }
                     catch (IOException) {
+                        TxAbort();
                         masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
-                        masterServ.printSomeShit("");
-                        masterServ.printSomeShit("ADDED TRANSACTION TO ABORT OF REMOTEPADINT: " + entry.Key.uid);
-                        masterServ.declareSlaveFailed(entry.Value);
                         masterServ.declareSlaveFailed(entry.Value);
                         //Aborts the current transaction
-                        TxAbort();
                         return false;
                     }
                 }

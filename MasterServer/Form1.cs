@@ -94,6 +94,7 @@ namespace MasterServer
             log("Recovering server at " + url);
             DSTMLib.Recover(url);
             int val = DSTMLib.getServerLoad(url);
+            log("THE VALUE IS: " + val);
             ServerLocationLoad.SelectedItems[0].SubItems[1].Text = Convert.ToString(val);
         }
 

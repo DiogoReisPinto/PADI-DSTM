@@ -171,7 +171,6 @@ namespace SlaveServer
         public void removePadInt(int id)
         {
             padIntObjects.Remove(id);
-            masterServ.printSomeShit("I HAVE ENTERED IN REMOVEPADINT! on URL: " + SlaveServer.url);
         }
     }
 
