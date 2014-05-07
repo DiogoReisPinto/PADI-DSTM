@@ -93,12 +93,20 @@ namespace MasterServer
             int i = 0;
             foreach (KeyValuePair<string, int> item in sortedSlaves)
             {
-                if (item.Key != urlFailed)
-                {
+                ISlave slave = (ISlave)Activator.GetObject(
+                                       typeof(ISlave),
+                                   item.Key);
+                try { 
+                    bool res = slave.ping();
                     url[i] = item.Key;
                     i++;
                     if (i == num)
                         break;
+                }
+                catch (SocketException)
+                {
+                    declareSlaveFailed(item.Key);
+                   continue;
                 }
              }
             return url;
@@ -296,6 +304,7 @@ namespace MasterServer
         {
             Console.WriteLine("ENTREI NO DECLARE SLAVE FAILED!");
             serversLoad[serverUrlFailed] = int.MaxValue;
+            addToFreezedOrFailedServers(serverUrlFailed);
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
                 //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN
@@ -312,6 +321,8 @@ namespace MasterServer
                     ISlave slaveToCreate = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                newURL);
+                    //Adicionar o PADInt para remover depois de o servidor ser declarado como morto
+                    addPadIntToRemoveFromFailed(entry.Key);
                     RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0);
                     RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
                     slaveToCreate.addCopyOfPadInt(newPadInt);
@@ -331,6 +342,8 @@ namespace MasterServer
                     ISlave slaveToCreate = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                newURL);
+                    //Adicionar o PADInt para remover depois de o servidor ser declarado como morto
+                    addPadIntToRemoveFromFailed(entry.Key);
                     RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0);
                     RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
                     slaveToCreate.addCopyOfPadInt(newPadInt);

@@ -11,6 +11,7 @@ namespace PADIDSTM
         void recover();
         void status();
         void checkStatus();
+        bool ping();
         void removePadInt(int id);
 
         

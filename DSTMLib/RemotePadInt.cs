@@ -95,7 +95,7 @@ namespace PADIDSTM
                 }
                 if (dSelect.commited || dSelect.writeTS == tc)
                 {
-                    server.checkStatus();//to block
+                    server.checkStatus();//to block when server is freezed or failed
                     val = dSelect.versionVal;
                     rts.Add(tc);
                 }
@@ -105,7 +105,7 @@ namespace PADIDSTM
                     Thread.Sleep(4000);
                     if (dSelect.writeTS == this.wts)
                     {
-                        server.checkStatus();//to block
+                        server.checkStatus();//to block when server is freezed or failed
                         val = dSelect.versionVal;
                         rts.Add(tc);
                     }

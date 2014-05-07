@@ -28,7 +28,7 @@ namespace PADIDSTM
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
             props["port"] = 0;
-            props["timeout"] = 4000; // in milliseconds
+            props["timeout"] = 10000; // in milliseconds
             TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
@@ -181,7 +181,6 @@ namespace PADIDSTM
                 typeof(ISlave),
                 url);
             slave.fail();
-            masterServ.addToFreezedOrFailedServers(url);
             return true;
         }
 
@@ -190,7 +189,6 @@ namespace PADIDSTM
                                    typeof(ISlave),
                                url);
             slave.freeze();
-            masterServ.addToFreezedOrFailedServers(url);
             return true;
         }
 
@@ -343,7 +341,7 @@ namespace PADIDSTM
             }
             catch (IOException)
             {
-                masterServ.printSomeShit("IM HERE MOTHAFUCKERS!");
+                
                 masterServ.declareSlaveFailed(url[1]);
                 //Makes Second attemp to access padInt
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);

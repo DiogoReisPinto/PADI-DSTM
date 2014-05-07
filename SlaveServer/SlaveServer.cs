@@ -86,11 +86,22 @@ namespace SlaveServer
             }
             return req;
         }
-        
+
 
         public void checkStatus()
         {
-            while (freezed || failed) { };
+
+            while (freezed || failed) { }
+
+        }
+
+        public bool ping()
+        {
+            masterServ.printSomeShit("I AM IN CHECKSTATUS");
+            while (freezed || failed) {
+                throw new System.Net.Sockets.SocketException();
+            };
+            return true;
             
         }
 

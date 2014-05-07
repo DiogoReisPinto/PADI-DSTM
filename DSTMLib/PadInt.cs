@@ -48,7 +48,8 @@ namespace PADIDSTM
             catch (TxException e)
             {
                 DSTMLib.TxAbort();
-                throw new TxException(e.message);
+                string msg = e.message;
+                throw new TxException(msg);
             }
 
             return val;
