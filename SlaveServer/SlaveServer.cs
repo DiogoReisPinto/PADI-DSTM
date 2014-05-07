@@ -158,7 +158,20 @@ namespace SlaveServer
             Console.WriteLine("------------STORED OBJECTS------------");
             foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
             {
-                Console.WriteLine("Object with id:{0} has value {1}", entry.Key, entry.Value.value);
+                long maxTS = long.MinValue;
+                TVersion actual = null;
+                foreach (TVersion t in entry.Value.tentativeVersions)
+                {
+                    if (t.commited == true && t.writeTS > maxTS)
+                    {
+                        maxTS = t.writeTS;
+                        actual = t;
+                    }
+                }
+                if(actual==null)
+                    Console.WriteLine("PadInt with uid:{0} and value:{1}", entry.Key, 0);
+                else
+                    Console.WriteLine("PadInt with uid:{0} and value:{1}", entry.Key, actual.versionVal);
             }
         }
 

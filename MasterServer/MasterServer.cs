@@ -251,6 +251,7 @@ namespace MasterServer
                 
                     
                 }
+                updateForm();
             }
 
            

@@ -23,8 +23,10 @@ namespace PADIDSTM
             bool success2 = RpadInt[1].Write(value, DSTMLib.transactionTS);
             if (success1 && success2)
             {
-                DSTMLib.visitedPadInts.Add(RpadInt[0],RpadInt[0].url);
-                DSTMLib.visitedPadInts.Add(RpadInt[1],RpadInt[1].url);
+                if(!DSTMLib.visitedPadInts.ContainsKey(RpadInt[0]))
+                    DSTMLib.visitedPadInts.Add(RpadInt[0],RpadInt[0].url);
+                if (!DSTMLib.visitedPadInts.ContainsKey(RpadInt[1]))
+                    DSTMLib.visitedPadInts.Add(RpadInt[1],RpadInt[1].url);
             }
             else
             {

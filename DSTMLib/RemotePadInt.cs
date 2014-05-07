@@ -83,7 +83,7 @@ namespace PADIDSTM
                                     typeof(ISlave),
                                 url);
             //JUST FOR INITIALIZING. WILL ALWAYS BE OVERRIDED OR TRANSACTION WILL ABORT
-            int value;
+            int val;
             if (tc > this.wts)
             {
                 TVersion dSelect = getMax(tc);
@@ -96,7 +96,7 @@ namespace PADIDSTM
                 if (dSelect.commited || dSelect.writeTS == tc)
                 {
                     server.checkStatus();//to block
-                    value = dSelect.versionVal;
+                    val = dSelect.versionVal;
                     rts.Add(tc);
                 }
                 else
@@ -106,7 +106,7 @@ namespace PADIDSTM
                     if (dSelect.writeTS == this.wts)
                     {
                         server.checkStatus();//to block
-                        value = dSelect.versionVal;
+                        val = dSelect.versionVal;
                         rts.Add(tc);
                     }
                     else
@@ -117,10 +117,10 @@ namespace PADIDSTM
             else
                 throw new TxException("Reading canceled because value is outdated");
 
-            return value;
+            return val;
         }
 
-        public bool Write(int value, string ts)
+        public bool Write(int val, string ts)
         {
             while (freezed) { }
             while (failed)
@@ -142,8 +142,8 @@ namespace PADIDSTM
             if (tc >= maxD && tc > wts)
             {
                 server.checkStatus();
-                tentativeVersions.Add(new TVersion(tc, value));
-                this.value = value;
+                tentativeVersions.Add(new TVersion(tc, val));
+                this.value = val;
                 return true;
             }
             else
