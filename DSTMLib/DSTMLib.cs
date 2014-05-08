@@ -11,6 +11,7 @@ using System.Runtime.Serialization.Formatters;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
+using System.Runtime.Remoting.Messaging;
 
 namespace PADIDSTM
 {
@@ -22,6 +23,22 @@ namespace PADIDSTM
         public static long tsValue;
         public static Dictionary<RemotePadInt,string> visitedPadInts;
         public static Dictionary<RemotePadInt,string> createdPadInts;
+        public static RemotePadInt[] acessingPadInts;
+
+        public delegate RemotePadInt RemoteAsyncDelegate(int uid,long ts);
+
+        public static void OurRemoteAsyncCallBack(IAsyncResult ar)
+        {
+            // Alternative 2: Use the callback to get the return value
+            RemoteAsyncDelegate del = (RemoteAsyncDelegate)((AsyncResult)ar).AsyncDelegate;
+            if(acessingPadInts[0]==null)
+                acessingPadInts[0] = del.EndInvoke(ar);
+            else
+                acessingPadInts[1] = del.EndInvoke(ar);
+
+            return;
+        }
+
 
         public static bool Init() {
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
@@ -47,6 +64,7 @@ namespace PADIDSTM
             tsValue = Convert.ToInt64(transactionTS.Split('#')[0]);
             visitedPadInts = new Dictionary<RemotePadInt,string>();
             createdPadInts = new Dictionary<RemotePadInt, string>();
+            acessingPadInts = new RemotePadInt[2];
             Console.WriteLine("IN DSTMlib: "+transactionTS);
             return true;
         }
@@ -296,6 +314,9 @@ namespace PADIDSTM
         public static RemotePadInt[] AccessRemotePadInt(int uid) {
             string[] url = masterServ.DiscoverPadInt(uid);
             RemotePadInt[] remotePadInts = new RemotePadInt[2];
+            AutoResetEvent[] handles = new AutoResetEvent[2];
+            handles[0] = new AutoResetEvent(false);
+            handles[1] = new AutoResetEvent(false);
             if (url[0] == null || url[1] == null || url[0] == "UNDEFINED" || url[1] == "UNDEFINED")
             {
                 return remotePadInts;
@@ -309,10 +330,16 @@ namespace PADIDSTM
                                    typeof(ISlave),
                                url[1]);
 
-            
+            IAsyncResult r1 = null;
+            IAsyncResult r2 = null;
             try
             {
-                remotePadInts[0] = slave1.access(uid, tsValue);
+                RemoteAsyncDelegate RemoteDel = new RemoteAsyncDelegate(slave1.access);
+                // Create delegate to local callback
+                AsyncCallback RemoteCallback = new AsyncCallback(DSTMLib.OurRemoteAsyncCallBack);
+                // Call remote method
+                r1 = RemoteDel.BeginInvoke(uid,tsValue,RemoteCallback,null);
+                //remotePadInts[0] = slave1.access(uid, tsValue);
             }
             catch (SocketException)
             {
@@ -330,7 +357,12 @@ namespace PADIDSTM
             }
             try
             {
-                remotePadInts[1] = slave2.access(uid, tsValue);
+                RemoteAsyncDelegate RemoteDel = new RemoteAsyncDelegate(slave1.access);
+                // Create delegate to local callback
+                AsyncCallback RemoteCallback = new AsyncCallback(DSTMLib.OurRemoteAsyncCallBack);
+                // Call remote method
+                r2 = RemoteDel.BeginInvoke(uid, tsValue, RemoteCallback, null);
+                //remotePadInts[1] = slave2.access(uid, tsValue);
             }
             catch (SocketException)
             {
@@ -347,7 +379,9 @@ namespace PADIDSTM
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);
                 return rpi;
             }
-            return remotePadInts;
+            r1.AsyncWaitHandle.WaitOne();
+            r2.AsyncWaitHandle.WaitOne();
+            return acessingPadInts;
         }
 
         
