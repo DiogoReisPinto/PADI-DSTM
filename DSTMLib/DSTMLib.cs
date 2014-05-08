@@ -47,6 +47,8 @@ namespace PADIDSTM
             else
                 acessingPadInts[1] = del.EndInvoke(ar);
 
+            handles[handleIndex].Set();
+            handleIndex++;
             return;
         }
 
@@ -294,9 +296,10 @@ namespace PADIDSTM
             acessingPadInts[0] = null;
             acessingPadInts[1] = null;
             string[] url = new String[2];
-            AutoResetEvent[] handles = new AutoResetEvent[2];
+            handles = new AutoResetEvent[2];
             handles[0] = new AutoResetEvent(false);
             handles[1] = new AutoResetEvent(false);
+            handleIndex = 0;
             url = masterServ.GetLocationNewPadInt(uid);
             if (url == null)
             {
@@ -351,8 +354,7 @@ namespace PADIDSTM
                 bool res = masterServ.declareSlaveFailed(url[1]);
                 return null;
             }
-            r1.AsyncWaitHandle.WaitOne();
-            r2.AsyncWaitHandle.WaitOne();
+            WaitHandle.WaitAll(handles);
             return acessingPadInts;
         }
 
@@ -379,7 +381,8 @@ namespace PADIDSTM
             acessingPadInts[1] = null;
             string[] url = masterServ.DiscoverPadInt(uid);
             RemotePadInt[] remotePadInts = new RemotePadInt[2];
-            AutoResetEvent[] handles = new AutoResetEvent[2];
+            handles = new AutoResetEvent[2];
+            handleIndex = 0;
             handles[0] = new AutoResetEvent(false);
             handles[1] = new AutoResetEvent(false);
             if (url[0] == null || url[1] == null || url[0] == "UNDEFINED" || url[1] == "UNDEFINED")
