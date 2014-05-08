@@ -42,13 +42,16 @@ namespace PADIDSTM
         public static void OurRemoteAsyncCallBack(IAsyncResult ar)
         {
             RemoteAsyncDelegate del = (RemoteAsyncDelegate)((AsyncResult)ar).AsyncDelegate;
-            if(acessingPadInts[0]==null)
-                acessingPadInts[0] = del.EndInvoke(ar);
-            else
-                acessingPadInts[1] = del.EndInvoke(ar);
+            lock (votesLock)
+            {
+                if (acessingPadInts[0] == null)
+                    acessingPadInts[0] = del.EndInvoke(ar);
+                else
+                    acessingPadInts[1] = del.EndInvoke(ar);
 
-            handles[handleIndex].Set();
-            handleIndex++;
+                handles[handleIndex].Set();
+                handleIndex++;
+            }
             return;
         }
 
@@ -211,19 +214,32 @@ namespace PADIDSTM
         public static bool TxAbort() {
             masterServ.printSomeShit("Entrei no Abort");
             List<int> UIDsToRemove = new List<int>();
-            int acks = 0;
-            int expectedAcks= visitedPadInts.Count + createdPadInts.Count;
+            int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
+            votes = 0;
+            handleIndex = 0;
+            handles = new AutoResetEvent[expectedVotes];
+            int j = 0;
+            foreach (AutoResetEvent are in handles)
+            {
+                handles[j] = new AutoResetEvent(false);
+                j++;
+            }
+            IAsyncResult[] r = new IAsyncResult[expectedVotes];
+            int i = 0;
             foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
                 try
                 {
-                    acks += entry.Key.abortTx(tsValue);
+                    callPrepareCommitDelegate del = new callPrepareCommitDelegate(entry.Key.abortTx);
+                    AsyncCallback callback = new AsyncCallback(DSTMLib.RemoteAsyncCallBackCommit);
+                    r[i] = del.BeginInvoke(tsValue, callback, null);
                 }
                 catch (IOException)
                 {
                     masterServ.addTransactionToAbort(entry.Key, tsValue);
                     masterServ.declareSlaveFailed(entry.Value);
                 }
+                i++;
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
             {
@@ -231,7 +247,7 @@ namespace PADIDSTM
                 {
                     UIDsToRemove.Add(entry.Key.getUID());
                     masterServ.printSomeShit("added uid to remove with id: " + entry.Key.url);
-                    acks++;
+                    votes++;
                 }
                 catch (IOException)
                 {
@@ -242,7 +258,7 @@ namespace PADIDSTM
                 }
             }
             masterServ.removeUID(UIDsToRemove);
-            if (acks == expectedAcks)
+            if (votes == expectedVotes)
                 return true;
             else
                 return false;
@@ -447,8 +463,7 @@ namespace PADIDSTM
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);
                 return rpi;
             }
-            r1.AsyncWaitHandle.WaitOne();
-            r2.AsyncWaitHandle.WaitOne();
+            WaitHandle.WaitAll(handles);
             return acessingPadInts;
         }
 
