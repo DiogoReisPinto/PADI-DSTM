@@ -14,7 +14,7 @@ namespace MasterServer
 {
     public class MasterServer
     {
-        [STAThread]
+        //[STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
