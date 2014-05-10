@@ -97,9 +97,8 @@ namespace SlaveServer
 
         public bool ping()
         {
-            masterServ.printSomeShit("I AM IN CHECKSTATUS");
             while (freezed || failed) {
-                throw new System.Net.Sockets.SocketException();
+                //throw new System.Net.Sockets.SocketException();
             };
             return true;
             

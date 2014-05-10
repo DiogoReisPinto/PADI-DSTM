@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -188,6 +189,7 @@ namespace PADIDSTM
 
         public int prepareCommitTx(long txID)
         {
+            bool res = FreezeFailedCycle();
             while (freezed) { }
             while (failed)
             {
@@ -215,6 +217,7 @@ namespace PADIDSTM
         }
 
         public int prepareCommitPadInt(long txID) {
+            bool res = FreezeFailedCycle();
             while (freezed) { }
             while (failed)
             {
@@ -245,6 +248,14 @@ namespace PADIDSTM
         {
             this.freezed = false;
             this.failed = false;
+        }
+
+        public bool FreezeFailedCycle()
+        {
+            ISlave server = (ISlave)Activator.GetObject(
+                                     typeof(ISlave),
+                                 url);
+            return server.ping();
         }
     }
 }

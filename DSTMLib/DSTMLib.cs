@@ -55,20 +55,7 @@ namespace PADIDSTM
             return;
         }
 
-        public static void RemoteAsyncCallBackCommit(IAsyncResult ar)
-        {
-            callPrepareCommitDelegate del = (callPrepareCommitDelegate)((AsyncResult)ar).AsyncDelegate;
-            masterServ.printSomeShit("Votes before: " + votes);
-            lock (votesLock)
-            {
-                votes += del.EndInvoke(ar);
-                masterServ.printSomeShit("setting handleIndex in position: " + handleIndex);
-                handles[handleIndex].Set();
-                handleIndex++;
-            }
-            masterServ.printSomeShit("Votes after: " + votes);
-            return;
-        }
+        
 
 
         public static bool Init() {
@@ -104,95 +91,65 @@ namespace PADIDSTM
         {
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
             votes = 0;
-            handleIndex = 0;
-            masterServ.printSomeShit("Expected Acks:" + Convert.ToString(expectedVotes));
-            handles = new AutoResetEvent[expectedVotes];
-            int j=0;
-            foreach(AutoResetEvent are in handles){
-                handles[j] = new AutoResetEvent(false);
-                j++;
-            }
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
+            callPrepareCommitDelegate[] callsForCommit = new callPrepareCommitDelegate[expectedVotes];
+            KeyValuePair<RemotePadInt,string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt,string>[expectedVotes];
             int i=0;
             foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
-               try{
-                   callPrepareCommitDelegate del = new callPrepareCommitDelegate(entry.Key.prepareCommitTx);
-                   AsyncCallback callback = new AsyncCallback(DSTMLib.RemoteAsyncCallBackCommit);
-                   r[i] = del.BeginInvoke(tsValue, callback, null);
-                   masterServ.printSomeShit("1st phase: " + "Added handle " + i + " on visitedPadInt");
-               }
-               catch (SocketException){
-                   TxAbort();
-                   masterServ.declareSlaveFailed(entry.Value);
-                   return false;
-               }
-               catch (IOException)
-               {
-                   TxAbort();
-                   masterServ.declareSlaveFailed(entry.Value);
-                   return false;
-               }
+               callsForCommit[i] = new callPrepareCommitDelegate(entry.Key.prepareCommitTx);
+               PadIntsInTransaction[i] = entry;
+               r[i] = callsForCommit[i].BeginInvoke(tsValue, null, null);
                i++;
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
             {
-                    try{
-                        callPrepareCommitDelegate del = new callPrepareCommitDelegate(entry.Key.prepareCommitPadInt);
-                        AsyncCallback callback = new AsyncCallback(DSTMLib.RemoteAsyncCallBackCommit);
-                        r[i] = del.BeginInvoke(tsValue, callback, null);
-                        masterServ.printSomeShit("1st phase: " + "Added handle " + i + " on visitedPadInt");
-                    }
-                    catch (SocketException){
-                        TxAbort();
-                        masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
-                        masterServ.declareSlaveFailed(entry.Value);
-                        return false;
-                    }
-                    catch (IOException) {
-                        TxAbort();
-                        masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
-                        masterServ.declareSlaveFailed(entry.Value);
-                        return false;
-                    }
-                    i++;
-                }
-
-            
-                WaitHandle.WaitAll(handles);
-            
-           
-           
-            //COMMIT MESSAGES FOR COMMITING ON SECOND PHASE 2PC
-            handles = new AutoResetEvent[expectedVotes];
-            int k = 0;
-            foreach (AutoResetEvent are in handles)
-            {
-                handles[k] = new AutoResetEvent(false);
-                k++;
+                callsForCommit[i] = new callPrepareCommitDelegate(entry.Key.prepareCommitPadInt);
+                PadIntsInTransaction[i] = entry;
+                r[i] = callsForCommit[i].BeginInvoke(tsValue, null, null);
+                i++;        
             }
-            IAsyncResult[] r2 = new IAsyncResult[expectedVotes];
-            int y=0;
+
+            for (int j = 0; j < expectedVotes; j++)
+            {
+                try
+                {
+                    votes += callsForCommit[j].EndInvoke(r[j]);
+                }
+                catch (Exception)
+                {
+                    TxAbort();
+                    masterServ.declareSlaveFailed(PadIntsInTransaction[j].Value);
+                    if (i >= visitedPadInts.Count)
+                        masterServ.addPadIntToRemoveFromFailed(PadIntsInTransaction[j].Key.uid);
+                }
+            }
+                //COMMIT MESSAGES FOR COMMITING ON SECOND PHASE 2PC
             if (votes == expectedVotes){
-                votes=0;
-                handleIndex = 0;
+                votes = 0;
+                IAsyncResult[] r2 = new IAsyncResult[expectedVotes];
+                callPrepareCommitDelegate[] callsForCommit2 = new callPrepareCommitDelegate[expectedVotes];
+                KeyValuePair<RemotePadInt,string>[] PadIntsInTransaction2 = new KeyValuePair<RemotePadInt,string>[expectedVotes];
+                int j=0;
                 foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
                 {
-                        callPrepareCommitDelegate del = new callPrepareCommitDelegate(entry.Key.commitTx);
-                        AsyncCallback callback = new AsyncCallback(DSTMLib.RemoteAsyncCallBackCommit);
-                        r2[y] = del.BeginInvoke(tsValue, callback, null);
-                        y++;
+                    callsForCommit2[j] = new callPrepareCommitDelegate(entry.Key.commitTx);
+                    PadIntsInTransaction2[j] = entry;
+                    r2[j] = callsForCommit2[j].BeginInvoke(tsValue, null, null);
+                    j++;
                 }
                 foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
                 {
-                    callPrepareCommitDelegate del = new callPrepareCommitDelegate(entry.Key.commitPadInt);
-                    AsyncCallback callback = new AsyncCallback(DSTMLib.RemoteAsyncCallBackCommit);
-                    r2[y] = del.BeginInvoke(tsValue, callback, null);
-                        y++;
+                    callsForCommit2[j] = new callPrepareCommitDelegate(entry.Key.prepareCommitPadInt);
+                    PadIntsInTransaction2[j] = entry;
+                    r2[j] = callsForCommit2[j].BeginInvoke(tsValue, null, null);
+                    j++;        
                 }
 
-                
-                    WaitHandle.WaitAll(handles);
+            for (int k = 0; k < expectedVotes; k++)
+            {
+                votes += callsForCommit2[k].EndInvoke(r2[k]);
+            }
                 
            
                 if (votes == expectedVotes)
@@ -211,34 +168,21 @@ namespace PADIDSTM
 
         }
 
-        public static bool TxAbort() {
-            masterServ.printSomeShit("Entrei no Abort");
+
+        public static bool TxAbort()
+        {
             List<int> UIDsToRemove = new List<int>();
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
             votes = 0;
-            handleIndex = 0;
-            handles = new AutoResetEvent[expectedVotes];
-            int j = 0;
-            foreach (AutoResetEvent are in handles)
-            {
-                handles[j] = new AutoResetEvent(false);
-                j++;
-            }
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
+            callPrepareCommitDelegate[] callsForCommit = new callPrepareCommitDelegate[visitedPadInts.Count];
+            KeyValuePair<RemotePadInt, string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt, string>[visitedPadInts.Count];
             int i = 0;
             foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
-                try
-                {
-                    callPrepareCommitDelegate del = new callPrepareCommitDelegate(entry.Key.abortTx);
-                    AsyncCallback callback = new AsyncCallback(DSTMLib.RemoteAsyncCallBackCommit);
-                    r[i] = del.BeginInvoke(tsValue, callback, null);
-                }
-                catch (IOException)
-                {
-                    masterServ.addTransactionToAbort(entry.Key, tsValue);
-                    masterServ.declareSlaveFailed(entry.Value);
-                }
+                callsForCommit[i] = new callPrepareCommitDelegate(entry.Key.abortTx);
+                PadIntsInTransaction[i] = entry;
+                r[i] = callsForCommit[i].BeginInvoke(tsValue, null, null);
                 i++;
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
@@ -246,15 +190,25 @@ namespace PADIDSTM
                 try
                 {
                     UIDsToRemove.Add(entry.Key.getUID());
-                    masterServ.printSomeShit("added uid to remove with id: " + entry.Key.url);
                     votes++;
                 }
-                catch (IOException)
+                catch (Exception)
                 {
-                    masterServ.printSomeShit("addPadIntToRemoveFromFailed with id: " + entry.Key.uid);
                     masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
                     masterServ.declareSlaveFailed(entry.Value);
-                    
+                }
+            }
+
+            for (int j = 0; j < visitedPadInts.Count; j++)
+            {
+                try
+                {
+                    votes += callsForCommit[j].EndInvoke(r[j]);
+                }
+                catch (Exception)
+                {
+                    masterServ.addTransactionToAbort(PadIntsInTransaction[i].Key, tsValue);
+                    masterServ.declareSlaveFailed(PadIntsInTransaction[i].Value);
                 }
             }
             masterServ.removeUID(UIDsToRemove);
@@ -262,7 +216,6 @@ namespace PADIDSTM
                 return true;
             else
                 return false;
-        
         }
 
         public static bool Status() { 
