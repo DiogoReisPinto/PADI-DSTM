@@ -14,7 +14,8 @@ namespace MasterServer
 {
     public class MasterServer
     {
-        //[STAThread]
+
+        
         static void Main()
         {
             Application.EnableVisualStyles();
@@ -36,6 +37,7 @@ namespace MasterServer
         private Object tIDLock = new Object();
         private Object padIntLocationLock = new Object();
         private Form1 form;
+        public delegate void callCopyDataDelegate(string url);
 
         public RemoteMaster(Form1 form)
         {
@@ -74,15 +76,6 @@ namespace MasterServer
             Console.WriteLine("Added url failed for: {0}", url);
         }
 
-        public void removeFromFreezedOrFailedServers(string url)
-        {
-            urlFailed = null;
-            Console.WriteLine("Removed url failed for: {0}", url);
-        }
-
-        
-           
-
         private string[] getBestSlaves(int num)
         {
             String[] url = new String[num];
@@ -103,9 +96,9 @@ namespace MasterServer
                     if (i == num)
                         break;
                 }
-                catch (SocketException)
+                catch (Exception)
                 {
-                    declareSlaveFailed(item.Key);
+                    //declareSlaveFailed(item.Key);
                    continue;
                 }
              }
@@ -132,7 +125,7 @@ namespace MasterServer
             
         }
 
-        public void recoverSlave()
+        public List<int> recoverSlave()
         {
             foreach (KeyValuePair<RemotePadInt,List<long>> item in transactionsToAbort)
             {
@@ -142,15 +135,9 @@ namespace MasterServer
                     rpiToAbort.abortTx(i);
                 }
             }
-            foreach (int uidToRemove in padIntsToRemoveFromFailed)
-            {
-                Console.WriteLine("REMOVED uid: {0}", uidToRemove);
-                ISlave slave = (ISlave)Activator.GetObject(
-                                       typeof(ISlave),
-                                   urlFailed);
-                slave.removePadInt(uidToRemove);
-            }
-
+            List<int> refs = getReferences(urlFailed);
+            urlFailed = null;
+            return refs;
         }
 
         public string GetTS(int uid)
@@ -241,23 +228,25 @@ namespace MasterServer
                 if (padIntLocation.ContainsKey(id))
                 {
                     string[] url = padIntLocation[id];
-                    if (serversLoad[url[0]] > 0)
-                        serversLoad[url[0]]--;
-                    if (serversLoad[url[1]] > 0)
-                        serversLoad[url[1]]--;
-                    padIntLocation.Remove(id);
-                    ISlave server1 = (ISlave)Activator.GetObject(
+                    if (url[0] != "COPYING" && url[0] != "UNDEFINED")
+                    {
+                        if (serversLoad[url[0]] > 0)
+                            serversLoad[url[0]]--;
+                        ISlave server1 = (ISlave)Activator.GetObject(
                                        typeof(ISlave),
                                    url[0]);
-                    ISlave server2 = (ISlave)Activator.GetObject(
+                        server1.removePadInt(id);
+                    }
+                    if (url[1] != "COPYING" && url[0] != "UNDEFINED")
+                    {
+                        if (serversLoad[url[1]] > 0)
+                            serversLoad[url[1]]--;
+                        ISlave server2 = (ISlave)Activator.GetObject(
                                        typeof(ISlave),
                                        url[1]);
-                   
-                        server1.removePadInt(id);
                         server2.removePadInt(id);
-                   
-                
-                    
+                    }
+                    padIntLocation.Remove(id);
                 }
                 updateForm();
             }
@@ -302,17 +291,26 @@ namespace MasterServer
 
         public bool declareSlaveFailed(string serverUrlFailed)
         {
-            Console.WriteLine("ENTREI NO DECLARE SLAVE FAILED!");
-            serversLoad[serverUrlFailed] = int.MaxValue;
-            addToFreezedOrFailedServers(serverUrlFailed);
+            if (urlFailed == null)
+            {
+                serversLoad[serverUrlFailed] = int.MaxValue;
+                addToFreezedOrFailedServers(serverUrlFailed);
+                callCopyDataDelegate del = new callCopyDataDelegate(copyDataFromFailedServer);
+                IAsyncResult r = del.BeginInvoke(serverUrlFailed, null, null);
+            }
+            return true;
+
+        }
+
+        private void copyDataFromFailedServer(string serverUrlFailed)
+        {
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
                 //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN
-                
+
                 if (entry.Value[0] == serverUrlFailed)
                 {
-                    Console.WriteLine("Trying to find URL to exchange with url:{0}", serverUrlFailed);
-                    entry.Value[0] = "UNDEFINED";
+                    entry.Value[0] = "COPYING";
                     string URLWithPadIntAvaliable = entry.Value[1];
                     string newURL = getSlaveToCopy(URLWithPadIntAvaliable);
                     ISlave slaveToCopy = (ISlave)Activator.GetObject(
@@ -326,14 +324,15 @@ namespace MasterServer
                     RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0);
                     RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
                     slaveToCreate.addCopyOfPadInt(newPadInt);
+
                     entry.Value[0] = newURL;
                     serversLoad[newURL]++;
                 }
                 //CASO EM QUE E O SEGUNDO A ESTAR DOWN
-                else if(entry.Value[1]==serverUrlFailed)
+                else if (entry.Value[1] == serverUrlFailed)
                 {
                     Console.WriteLine("Trying to find URL to exchange with url:{0}", serverUrlFailed);
-                    entry.Value[1] = "UNDEFINED";
+                    entry.Value[1] = "COPYING";
                     string URLWithPadIntAvaliable = entry.Value[0];
                     string newURL = getSlaveToCopy(URLWithPadIntAvaliable);
                     ISlave slaveToCopy = (ISlave)Activator.GetObject(
@@ -350,14 +349,23 @@ namespace MasterServer
                     entry.Value[1] = newURL;
                     serversLoad[newURL]++;
                 }
-                
+
 
             }
             updateForm();
-            return true;
 
 
         }
+
+        public List<int> getReferences(string url){
+            List<int> references= new List<int>();
+            foreach(KeyValuePair<int,string[]> rpi in padIntLocation){
+                if(rpi.Value[0]==url || rpi.Value[1]==url)
+                    references.Add(rpi.Key);
+            }
+            return references;
+        }
+
 
         public void printSomeShit(string toPrint)
         {

@@ -25,12 +25,13 @@ namespace PADIDSTM
 
         void addToFreezedOrFailedServers(string url);
 
-        void removeFromFreezedOrFailedServers(string url);
 
         void addTransactionToAbort(RemotePadInt remotePadInt, long tsValue);
 
-        void recoverSlave();
+        List<int> recoverSlave();
 
         void addPadIntToRemoveFromFailed(int uid);
+
+       
     }
 }

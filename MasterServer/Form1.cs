@@ -57,7 +57,7 @@ namespace MasterServer
             foreach (KeyValuePair<string, int> server in serversLoad)
             {
                 string[] values = new String[2];
-                if (server.Value == int.MaxValue)
+                if (server.Value > 2000000)
                 {
                     values[0] =server.Key;
                     values[1] = "UNAVAILABLE";

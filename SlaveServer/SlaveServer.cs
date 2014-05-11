@@ -10,6 +10,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Serialization.Formatters;
 using System.Collections;
 using System.Threading;
+using System.Net.Sockets;
 
 namespace SlaveServer
 {
@@ -32,7 +33,7 @@ namespace SlaveServer
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
             props["port"] = 0;
-            props["timeout"] = 4000;
+            props["timeout"] = 6000;
             TcpChannel channel = new TcpChannel(props, null, provider);
 
             ChannelServices.RegisterChannel(channel, true);
@@ -98,7 +99,7 @@ namespace SlaveServer
         public bool ping()
         {
             while (freezed || failed) {
-                //throw new System.Net.Sockets.SocketException();
+                throw new SocketException();
             };
             return true;
             
@@ -147,12 +148,16 @@ namespace SlaveServer
         public void recover() {
             freezed = false;
             failed = false;
+            List<int> references = masterServ.recoverSlave();
             foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
             {
-                entry.Value.Recover();
+                if (references.Contains(entry.Key))
+                {
+                    entry.Value.Recover();
+                }
+                else
+                    removePadInt(entry.Key);
             }
-            masterServ.recoverSlave();
-            Console.WriteLine("Will send update load with url:{0} and load:{1}", url, padIntObjects.Count);
             masterServ.updateLoad(url, padIntObjects.Count);
         }
         public void status()

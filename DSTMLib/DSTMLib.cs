@@ -119,9 +119,10 @@ namespace PADIDSTM
                 catch (Exception)
                 {
                     TxAbort();
-                    masterServ.declareSlaveFailed(PadIntsInTransaction[j].Value);
-                    if (i >= visitedPadInts.Count)
-                        masterServ.addPadIntToRemoveFromFailed(PadIntsInTransaction[j].Key.uid);
+                    //masterServ.declareSlaveFailed(PadIntsInTransaction[j].Value);
+                    //if (i >= visitedPadInts.Count)
+                    //    masterServ.addPadIntToRemoveFromFailed(PadIntsInTransaction[j].Key.uid);
+                    return false;
                 }
             }
                 //COMMIT MESSAGES FOR COMMITING ON SECOND PHASE 2PC
@@ -148,7 +149,14 @@ namespace PADIDSTM
 
             for (int k = 0; k < expectedVotes; k++)
             {
-                votes += callsForCommit2[k].EndInvoke(r2[k]);
+                try
+                {
+                    votes += callsForCommit2[k].EndInvoke(r2[k]);
+                }
+                catch (Exception)
+                {
+                    TxAbort();
+                }
             }
                 
            
@@ -194,7 +202,7 @@ namespace PADIDSTM
                 }
                 catch (Exception)
                 {
-                    masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
+                    //masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
                     masterServ.declareSlaveFailed(entry.Value);
                 }
             }
@@ -246,7 +254,6 @@ namespace PADIDSTM
                   typeof(ISlave),
                   url);
             slave.recover();
-            masterServ.removeFromFreezedOrFailedServers(url);
             return true;  
         }
 
@@ -344,6 +351,7 @@ namespace PADIDSTM
             return load;
         }
 
+        
 
         public static RemotePadInt[] AccessRemotePadInt(int uid) {
             acessingPadInts[0] = null;
@@ -383,6 +391,7 @@ namespace PADIDSTM
                 bool res = masterServ.declareSlaveFailed(url[0]);
                 //Makes Second attemp to access padInt
                 RemotePadInt[] rpi = AccessRemotePadInt(uid);
+
                 return rpi;
             }
             catch (IOException)

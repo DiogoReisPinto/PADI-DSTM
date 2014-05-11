@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
@@ -217,7 +218,14 @@ namespace PADIDSTM
         }
 
         public int prepareCommitPadInt(long txID) {
-            bool res = FreezeFailedCycle();
+            try
+            {
+                bool res = FreezeFailedCycle();
+            }
+            catch (Exception)
+            {
+                throw new IOException();
+            }
             while (freezed) { }
             while (failed)
             {
