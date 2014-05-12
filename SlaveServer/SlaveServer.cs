@@ -70,18 +70,18 @@ namespace SlaveServer
         public RemotePadInt access(int uid,long tid)
         {
 
-            while (freezed) { }
-            while (failed)
-            {
-                while (true) { }
-            }
+            bool res = ping();
             RemotePadInt req = padIntObjects[uid];
             if (tid == req.creatorTID || tid==0)
                 return req;
             if(!req.isCommited){
                 Thread.Sleep(1000);
+                masterServ.printSomeShit("IM HERE BITCHES");
                 if (req.isCommited)
+                {
+                    masterServ.printSomeShit("IM HERE BITCHES1");
                     return req;
+                }
                 else
                     return null;
             }
@@ -108,11 +108,7 @@ namespace SlaveServer
 
         public RemotePadInt create(int uid, long tid)
         {
-            while (freezed) { }
-            while (failed)
-            {
-                while (true) { }
-            }
+            bool res = ping();
             RemotePadInt newPadInt = new RemotePadInt(uid, url);
             newPadInt.creatorTID = tid;
             padIntObjects.Add(uid, newPadInt);

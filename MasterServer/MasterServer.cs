@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -119,8 +120,6 @@ namespace MasterServer
                     url[1] = entry.Value[1];
                 }
             }
-            Console.WriteLine("In Discover PadInt Method:");
-            Console.WriteLine(url[0] + url[1]);
             return url;
             
         }
@@ -293,6 +292,7 @@ namespace MasterServer
         {
             if (urlFailed == null)
             {
+                urlFailed = serverUrlFailed;
                 serversLoad[serverUrlFailed] = int.MaxValue;
                 addToFreezedOrFailedServers(serverUrlFailed);
                 callCopyDataDelegate del = new callCopyDataDelegate(copyDataFromFailedServer);
@@ -304,6 +304,7 @@ namespace MasterServer
 
         private void copyDataFromFailedServer(string serverUrlFailed)
         {
+            Thread.Sleep(8000);
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
                 //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN

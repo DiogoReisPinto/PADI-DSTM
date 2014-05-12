@@ -25,38 +25,11 @@ namespace PADIDSTM
         public static Dictionary<RemotePadInt,string> visitedPadInts;
         public static Dictionary<RemotePadInt,string> createdPadInts;
 
-        //Variable used for accessing PadInts
-        public static RemotePadInt[] acessingPadInts;
-        public static int votes;
-        private static Object votesLock = new Object();
-        private static AutoResetEvent[] handles;
-        private static int handleIndex;
-        
-
         //Delegate for calling acess PadInts
         public delegate RemotePadInt RemoteAsyncDelegate(int uid,long ts);
         public delegate int callPrepareCommitDelegate(long ts);
 
         
-        //CallBack for AcessingPadInts operation
-        public static void OurRemoteAsyncCallBack(IAsyncResult ar)
-        {
-            RemoteAsyncDelegate del = (RemoteAsyncDelegate)((AsyncResult)ar).AsyncDelegate;
-            lock (votesLock)
-            {
-                if (acessingPadInts[0] == null)
-                    acessingPadInts[0] = del.EndInvoke(ar);
-                else
-                    acessingPadInts[1] = del.EndInvoke(ar);
-
-                handles[handleIndex].Set();
-                handleIndex++;
-            }
-            return;
-        }
-
-        
-
 
         public static bool Init() {
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
@@ -82,7 +55,6 @@ namespace PADIDSTM
             tsValue = Convert.ToInt64(transactionTS.Split('#')[0]);
             visitedPadInts = new Dictionary<RemotePadInt,string>();
             createdPadInts = new Dictionary<RemotePadInt, string>();
-            acessingPadInts = new RemotePadInt[2];
             Console.WriteLine("IN DSTMlib: "+transactionTS);
             return true;
         }
@@ -90,7 +62,7 @@ namespace PADIDSTM
         public static bool TxCommit()
         {
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
-            votes = 0;
+            int votes = 0;
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
             callPrepareCommitDelegate[] callsForCommit = new callPrepareCommitDelegate[expectedVotes];
             KeyValuePair<RemotePadInt,string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt,string>[expectedVotes];
@@ -119,9 +91,6 @@ namespace PADIDSTM
                 catch (Exception)
                 {
                     TxAbort();
-                    //masterServ.declareSlaveFailed(PadIntsInTransaction[j].Value);
-                    //if (i >= visitedPadInts.Count)
-                    //    masterServ.addPadIntToRemoveFromFailed(PadIntsInTransaction[j].Key.uid);
                     return false;
                 }
             }
@@ -141,7 +110,7 @@ namespace PADIDSTM
                 }
                 foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
                 {
-                    callsForCommit2[j] = new callPrepareCommitDelegate(entry.Key.prepareCommitPadInt);
+                    callsForCommit2[j] = new callPrepareCommitDelegate(entry.Key.commitPadInt);
                     PadIntsInTransaction2[j] = entry;
                     r2[j] = callsForCommit2[j].BeginInvoke(tsValue, null, null);
                     j++;        
@@ -181,7 +150,7 @@ namespace PADIDSTM
         {
             List<int> UIDsToRemove = new List<int>();
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
-            votes = 0;
+            int votes = 0;
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
             callPrepareCommitDelegate[] callsForCommit = new callPrepareCommitDelegate[visitedPadInts.Count];
             KeyValuePair<RemotePadInt, string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt, string>[visitedPadInts.Count];
@@ -268,18 +237,11 @@ namespace PADIDSTM
         }
 
         public static RemotePadInt[] CreateRemotePadInt(int uid){
-            masterServ.printSomeShit("Enter Create RemotePadInt with uid: " + uid);
-            acessingPadInts[0] = null;
-            acessingPadInts[1] = null;
             string[] url = new String[2];
-            handles = new AutoResetEvent[2];
-            handles[0] = new AutoResetEvent(false);
-            handles[1] = new AutoResetEvent(false);
-            handleIndex = 0;
+            RemotePadInt[] createdRemotePadInt = new RemotePadInt[2];
             url = masterServ.GetLocationNewPadInt(uid);
             if (url == null)
             {
-                masterServ.printSomeShit("GetLocationNewPadInt returned null indicating that PadInt with id already exists:" + uid);
                 return null;
             }
             ISlave slave1 = (ISlave)Activator.GetObject(
@@ -290,50 +252,36 @@ namespace PADIDSTM
                               url[1]);
             IAsyncResult r1 = null;
             IAsyncResult r2 = null;
-            try
-            {
-                RemoteAsyncDelegate RemoteDel = new RemoteAsyncDelegate(slave1.create);
-                // Create delegate to local callback
-                AsyncCallback RemoteCallback = new AsyncCallback(DSTMLib.OurRemoteAsyncCallBack);
-                // Call remote method
-                r1 = RemoteDel.BeginInvoke(uid, tsValue, RemoteCallback, null);
-            }
-            catch (SocketException)
-            {
-                masterServ.printSomeShit("Declared that server with url:" + url[0] + "is unavailable on creating PadInt with ID:" + uid);
-                bool res = masterServ.declareSlaveFailed(url[0]);
-                return null;
-            }
-            catch (IOException)
-            {
-                masterServ.printSomeShit("Declared that server with url:" + url[0] + "is unavailable on creating PadInt with ID:" + uid);
-                bool res = masterServ.declareSlaveFailed(url[0]);
-                return null;
-            }
-            try
-            {
-                RemoteAsyncDelegate RemoteDel = new RemoteAsyncDelegate(slave2.create);
-                // Create delegate to local callback
-                AsyncCallback RemoteCallback = new AsyncCallback(DSTMLib.OurRemoteAsyncCallBack);
-                // Call remote method
-                r2 = RemoteDel.BeginInvoke(uid, tsValue, RemoteCallback, null);
-            }
-            catch (SocketException)
-            {
-                masterServ.printSomeShit("Declared that server with url:" + url[1] + "is unavailable on creating PadInt with ID:" + uid);
-                bool res = masterServ.declareSlaveFailed(url[1]);
-                return null;
-            }
-            catch (IOException)
-            {
-                masterServ.printSomeShit("Declared that server with url:" + url[1] + "is unavailable on creating PadInt with ID:" + uid);
-                bool res = masterServ.declareSlaveFailed(url[1]);
-                return null;
-            }
-            WaitHandle.WaitAll(handles);
-            return acessingPadInts;
-        }
 
+            RemoteAsyncDelegate RemoteDel1 = new RemoteAsyncDelegate(slave1.create);
+            // Call remote method
+            r1 = RemoteDel1.BeginInvoke(uid, tsValue, null, null);
+
+
+            RemoteAsyncDelegate RemoteDel2 = new RemoteAsyncDelegate(slave2.create);
+            // Call remote method
+            r2 = RemoteDel2.BeginInvoke(uid, tsValue, null, null);
+            //remotePadInts[1] = slave2.access(uid, tsValue);
+            try
+            {
+                createdRemotePadInt[0] = RemoteDel1.EndInvoke(r1);
+            }
+            catch (Exception)
+            {
+                masterServ.declareSlaveFailed(url[0]);
+                return null;
+            }
+            try
+            {
+                createdRemotePadInt[1] = RemoteDel2.EndInvoke(r2);
+            }
+            catch (Exception)
+            {
+                masterServ.declareSlaveFailed(url[1]);
+                return null;
+            }
+            return createdRemotePadInt;
+        }
 
         public static PadInt AccessPadInt(int uid) {
             RemotePadInt[] newRemotePadInt = AccessRemotePadInt(uid);
@@ -354,20 +302,13 @@ namespace PADIDSTM
         
 
         public static RemotePadInt[] AccessRemotePadInt(int uid) {
-            acessingPadInts[0] = null;
-            acessingPadInts[1] = null;
             string[] url = masterServ.DiscoverPadInt(uid);
             RemotePadInt[] remotePadInts = new RemotePadInt[2];
-            handles = new AutoResetEvent[2];
-            handleIndex = 0;
-            handles[0] = new AutoResetEvent(false);
-            handles[1] = new AutoResetEvent(false);
             if (url[0] == null || url[1] == null || url[0] == "UNDEFINED" || url[1] == "UNDEFINED")
             {
                 return remotePadInts;
-
-
             }
+
             ISlave slave1 = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                url[0]);
@@ -377,56 +318,38 @@ namespace PADIDSTM
 
             IAsyncResult r1 = null;
             IAsyncResult r2 = null;
-            try
-            {
-                RemoteAsyncDelegate RemoteDel = new RemoteAsyncDelegate(slave1.access);
-                // Create delegate to local callback
-                AsyncCallback RemoteCallback = new AsyncCallback(DSTMLib.OurRemoteAsyncCallBack);
+           
+                RemoteAsyncDelegate RemoteDel1 = new RemoteAsyncDelegate(slave1.access);
                 // Call remote method
-                r1 = RemoteDel.BeginInvoke(uid,tsValue,RemoteCallback,null);
-                //remotePadInts[0] = slave1.access(uid, tsValue);
-            }
-            catch (SocketException)
-            {
-                bool res = masterServ.declareSlaveFailed(url[0]);
-                //Makes Second attemp to access padInt
-                RemotePadInt[] rpi = AccessRemotePadInt(uid);
-
-                return rpi;
-            }
-            catch (IOException)
-            {
-                bool res = masterServ.declareSlaveFailed(url[0]);
-                //Makes Second attemp to access padInt
-                RemotePadInt[] rpi = AccessRemotePadInt(uid);
-                return rpi;
-            }
-            try
-            {
-                RemoteAsyncDelegate RemoteDel = new RemoteAsyncDelegate(slave1.access);
-                // Create delegate to local callback
-                AsyncCallback RemoteCallback = new AsyncCallback(DSTMLib.OurRemoteAsyncCallBack);
-                // Call remote method
-                r2 = RemoteDel.BeginInvoke(uid, tsValue, RemoteCallback, null);
-                //remotePadInts[1] = slave2.access(uid, tsValue);
-            }
-            catch (SocketException)
-            {
-                masterServ.declareSlaveFailed(url[1]);
-                //Makes Second attemp to access padInt
-                RemotePadInt[] rpi = AccessRemotePadInt(uid);
-                return rpi;
-            }
-            catch (IOException)
-            {
+                r1 = RemoteDel1.BeginInvoke(uid,tsValue,null,null);
                 
-                masterServ.declareSlaveFailed(url[1]);
-                //Makes Second attemp to access padInt
-                RemotePadInt[] rpi = AccessRemotePadInt(uid);
-                return rpi;
-            }
-            WaitHandle.WaitAll(handles);
-            return acessingPadInts;
+           
+                RemoteAsyncDelegate RemoteDel2 = new RemoteAsyncDelegate(slave2.access);
+                // Call remote method
+                r2 = RemoteDel2.BeginInvoke(uid, tsValue, null, null);
+                //remotePadInts[1] = slave2.access(uid, tsValue);
+                try
+                {
+                    remotePadInts[0] = RemoteDel1.EndInvoke(r1);
+                }
+                catch (Exception)
+                {
+                    masterServ.printSomeShit("ENTREI NO CATCH 1");
+                    masterServ.declareSlaveFailed(url[0]);
+                    return null;
+                }
+                try
+                {
+                    remotePadInts[1] = RemoteDel2.EndInvoke(r2);
+                }
+                catch (Exception)
+                {
+                    masterServ.printSomeShit("ENTREI NO CATCH 2");
+                    masterServ.declareSlaveFailed(url[1]);
+                    return null;
+                }
+                masterServ.printSomeShit(remotePadInts[1].url + remotePadInts[0].url);
+            return remotePadInts;
         }
 
         
