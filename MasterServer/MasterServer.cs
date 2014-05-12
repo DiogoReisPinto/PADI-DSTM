@@ -71,11 +71,7 @@ namespace MasterServer
             
         }
 
-        public void addToFreezedOrFailedServers(string url)
-        {
-            urlFailed = url;
-            Console.WriteLine("Added url failed for: {0}", url);
-        }
+       
 
         private string[] getBestSlaves(int num)
         {
@@ -294,7 +290,7 @@ namespace MasterServer
             {
                 urlFailed = serverUrlFailed;
                 serversLoad[serverUrlFailed] = int.MaxValue;
-                addToFreezedOrFailedServers(serverUrlFailed);
+                urlFailed = serverUrlFailed;
                 callCopyDataDelegate del = new callCopyDataDelegate(copyDataFromFailedServer);
                 IAsyncResult r = del.BeginInvoke(serverUrlFailed, null, null);
             }
@@ -304,7 +300,6 @@ namespace MasterServer
 
         private void copyDataFromFailedServer(string serverUrlFailed)
         {
-            Thread.Sleep(8000);
             foreach (KeyValuePair<int, string[]> entry in padIntLocation)
             {
                 //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN

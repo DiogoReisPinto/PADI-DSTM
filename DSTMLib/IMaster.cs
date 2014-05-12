@@ -23,7 +23,7 @@ namespace PADIDSTM
 
         int getLoad(string slaveUrl);
 
-        void addToFreezedOrFailedServers(string url);
+        
 
 
         void addTransactionToAbort(RemotePadInt remotePadInt, long tsValue);

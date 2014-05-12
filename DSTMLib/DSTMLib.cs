@@ -336,7 +336,7 @@ namespace PADIDSTM
                 {
                     masterServ.printSomeShit("ENTREI NO CATCH 1");
                     masterServ.declareSlaveFailed(url[0]);
-                    return null;
+                    return remotePadInts;
                 }
                 try
                 {
@@ -346,7 +346,7 @@ namespace PADIDSTM
                 {
                     masterServ.printSomeShit("ENTREI NO CATCH 2");
                     masterServ.declareSlaveFailed(url[1]);
-                    return null;
+                    return remotePadInts;
                 }
                 masterServ.printSomeShit(remotePadInts[1].url + remotePadInts[0].url);
             return remotePadInts;
