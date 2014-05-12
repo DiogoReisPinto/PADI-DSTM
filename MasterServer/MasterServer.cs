@@ -186,7 +186,7 @@ namespace MasterServer
                 {
                     server.status();
                 }
-                catch (SocketException)
+                catch (Exception)
                 {
                     Console.WriteLine("Server with url {0} is unavailable", slave);
                     continue;

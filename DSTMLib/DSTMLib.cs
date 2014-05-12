@@ -90,6 +90,7 @@ namespace PADIDSTM
                 }
                 catch (Exception)
                 {
+
                     TxAbort();
                     return false;
                 }
@@ -125,6 +126,7 @@ namespace PADIDSTM
                 catch (Exception)
                 {
                     TxAbort();
+                    return false;
                 }
             }
                 
@@ -188,6 +190,7 @@ namespace PADIDSTM
                     masterServ.declareSlaveFailed(PadIntsInTransaction[i].Value);
                 }
             }
+            Thread.Sleep(2000);//WAITS FOR MASTER TO STOP COPYING PADINTS
             masterServ.removeUID(UIDsToRemove);
             if (votes == expectedVotes)
                 return true;
@@ -304,6 +307,12 @@ namespace PADIDSTM
         public static RemotePadInt[] AccessRemotePadInt(int uid) {
             string[] url = masterServ.DiscoverPadInt(uid);
             RemotePadInt[] remotePadInts = new RemotePadInt[2];
+            if (url[0] == "COPYING" || url[1] == "COPYING")
+            {
+                Thread.Sleep(1000);
+                remotePadInts = AccessRemotePadInt(uid);
+                return remotePadInts;
+            }
             if (url[0] == null || url[1] == null || url[0] == "UNDEFINED" || url[1] == "UNDEFINED")
             {
                 return remotePadInts;
