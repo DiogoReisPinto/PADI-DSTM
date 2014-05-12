@@ -334,8 +334,9 @@ namespace PADIDSTM
                 }
                 catch (Exception)
                 {
-                    masterServ.printSomeShit("ENTREI NO CATCH 1");
                     masterServ.declareSlaveFailed(url[0]);
+                    Thread.Sleep(3000);
+                    remotePadInts = AccessRemotePadInt(uid);
                     return remotePadInts;
                 }
                 try
@@ -344,8 +345,9 @@ namespace PADIDSTM
                 }
                 catch (Exception)
                 {
-                    masterServ.printSomeShit("ENTREI NO CATCH 2");
                     masterServ.declareSlaveFailed(url[1]);
+                    Thread.Sleep(3000);
+                    remotePadInts = AccessRemotePadInt(uid);
                     return remotePadInts;
                 }
                 masterServ.printSomeShit(remotePadInts[1].url + remotePadInts[0].url);

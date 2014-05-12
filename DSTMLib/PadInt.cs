@@ -18,9 +18,20 @@ namespace PADIDSTM
 
         public void Write(int value)
         {
+            bool success1;
+            bool success2;
             RemotePadInt[] RpadInt = DSTMLib.AccessRemotePadInt(uid);
-            bool success1 = RpadInt[0].Write(value, DSTMLib.transactionTS);
-            bool success2 = RpadInt[1].Write(value, DSTMLib.transactionTS);
+            try
+            {
+                success1 = RpadInt[0].Write(value, DSTMLib.transactionTS);
+                success2 = RpadInt[1].Write(value, DSTMLib.transactionTS);
+            }
+            catch (Exception)
+            {
+                DSTMLib.TxAbort();
+                throw new TxException("Write canceled because server is unavailable. Transaction will abort");
+                
+            }
             if (success1 && success2)
             {
                 if(!DSTMLib.visitedPadInts.ContainsKey(RpadInt[0]))
@@ -41,8 +52,6 @@ namespace PADIDSTM
             int val;
             try
             {
-                //HERE SHOULD WE READ THE TWO VALUES? TIME FOR CHECKING THE SLAVES HEALTH?
-                //WE ONLY READ FROM ONE PADINT BECAUSE THE OTHER ONE IS JUST A COPY, FOR SURE.
                 val = RpadInt[0].Read(DSTMLib.transactionTS);
             }
             catch (TxException e)

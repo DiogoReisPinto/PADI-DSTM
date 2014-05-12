@@ -290,7 +290,6 @@ namespace MasterServer
             {
                 urlFailed = serverUrlFailed;
                 serversLoad[serverUrlFailed] = int.MaxValue;
-                urlFailed = serverUrlFailed;
                 callCopyDataDelegate del = new callCopyDataDelegate(copyDataFromFailedServer);
                 IAsyncResult r = del.BeginInvoke(serverUrlFailed, null, null);
             }
@@ -320,7 +319,6 @@ namespace MasterServer
                     RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0);
                     RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
                     slaveToCreate.addCopyOfPadInt(newPadInt);
-
                     entry.Value[0] = newURL;
                     serversLoad[newURL]++;
                 }

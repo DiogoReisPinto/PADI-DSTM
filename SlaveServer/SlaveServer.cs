@@ -76,10 +76,8 @@ namespace SlaveServer
                 return req;
             if(!req.isCommited){
                 Thread.Sleep(1000);
-                masterServ.printSomeShit("IM HERE BITCHES");
                 if (req.isCommited)
                 {
-                    masterServ.printSomeShit("IM HERE BITCHES1");
                     return req;
                 }
                 else
@@ -144,6 +142,7 @@ namespace SlaveServer
         public void recover() {
             freezed = false;
             failed = false;
+            List<int> uidToRemove = new List<int>();
             List<int> references = masterServ.recoverSlave();
             foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
             {
@@ -152,7 +151,12 @@ namespace SlaveServer
                     entry.Value.Recover();
                 }
                 else
-                    removePadInt(entry.Key);
+                    uidToRemove.Add(entry.Key);
+                
+            }
+            foreach (int uid in uidToRemove)
+            {
+                removePadInt(uid);
             }
             masterServ.updateLoad(url, padIntObjects.Count);
         }
