@@ -28,6 +28,7 @@ namespace PADIDSTM
         //Delegate for calling acess PadInts
         public delegate RemotePadInt RemoteAsyncDelegate(int uid,long ts);
         public delegate int callPrepareCommitDelegate(long ts);
+        public delegate bool declareSlaveFailedDelegate(string url);
 
         
 
@@ -173,7 +174,6 @@ namespace PADIDSTM
                 }
                 catch (Exception)
                 {
-                    //masterServ.addPadIntToRemoveFromFailed(entry.Key.uid);
                     masterServ.declareSlaveFailed(entry.Value);
                 }
             }
@@ -186,11 +186,10 @@ namespace PADIDSTM
                 }
                 catch (Exception)
                 {
-                    masterServ.addTransactionToAbort(PadIntsInTransaction[i].Key, tsValue);
-                    masterServ.declareSlaveFailed(PadIntsInTransaction[i].Value);
+                    masterServ.declareSlaveFailed(PadIntsInTransaction[j].Value);
                 }
             }
-            Thread.Sleep(2000);//WAITS FOR MASTER TO STOP COPYING PADINTS
+  
             masterServ.removeUID(UIDsToRemove);
             if (votes == expectedVotes)
                 return true;
@@ -271,7 +270,8 @@ namespace PADIDSTM
             }
             catch (Exception)
             {
-                masterServ.declareSlaveFailed(url[0]);
+                declareSlaveFailedDelegate del = new declareSlaveFailedDelegate(masterServ.declareSlaveFailed);
+                IAsyncResult res = del.BeginInvoke(url[0], null, null);
                 return null;
             }
             try
@@ -280,7 +280,8 @@ namespace PADIDSTM
             }
             catch (Exception)
             {
-                masterServ.declareSlaveFailed(url[1]);
+                declareSlaveFailedDelegate del = new declareSlaveFailedDelegate(masterServ.declareSlaveFailed);
+                IAsyncResult res = del.BeginInvoke(url[1], null, null);
                 return null;
             }
             return createdRemotePadInt;
@@ -344,7 +345,6 @@ namespace PADIDSTM
                 catch (Exception)
                 {
                     masterServ.declareSlaveFailed(url[0]);
-                    Thread.Sleep(3000);
                     remotePadInts = AccessRemotePadInt(uid);
                     return remotePadInts;
                 }
@@ -355,7 +355,6 @@ namespace PADIDSTM
                 catch (Exception)
                 {
                     masterServ.declareSlaveFailed(url[1]);
-                    Thread.Sleep(3000);
                     remotePadInts = AccessRemotePadInt(uid);
                     return remotePadInts;
                 }

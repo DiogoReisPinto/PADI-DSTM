@@ -38,7 +38,7 @@ namespace MasterServer
         private Object tIDLock = new Object();
         private Object padIntLocationLock = new Object();
         private Form1 form;
-        public delegate void callCopyDataDelegate(string url);
+        private delegate bool declareSlaveFailedDelegate(string url);
 
         public RemoteMaster(Form1 form)
         {
@@ -95,7 +95,8 @@ namespace MasterServer
                 }
                 catch (Exception)
                 {
-                    //declareSlaveFailed(item.Key);
+                    declareSlaveFailedDelegate del = new declareSlaveFailedDelegate(declareSlaveFailed);
+                    IAsyncResult r = del.BeginInvoke(item.Key, null, null);
                    continue;
                 }
              }
@@ -122,14 +123,6 @@ namespace MasterServer
 
         public List<int> recoverSlave()
         {
-            foreach (KeyValuePair<RemotePadInt,List<long>> item in transactionsToAbort)
-            {
-                foreach (long i in item.Value)
-                {
-                    RemotePadInt rpiToAbort = item.Key;
-                    rpiToAbort.abortTx(i);
-                }
-            }
             List<int> refs = getReferences(urlFailed);
             urlFailed = null;
             return refs;
@@ -196,15 +189,21 @@ namespace MasterServer
 
         public void addTransactionToAbort(RemotePadInt rpi, long ts)
         {
+            Console.WriteLine("I HAVE ENTERED HERE!");
             if (transactionsToAbort.ContainsKey(rpi))
             {
+                Console.WriteLine("I HAVE ENTERED HERE!1");
                 transactionsToAbort[rpi].Add(ts);
 
             }
             else
             {
+                Console.WriteLine("I HAVE ENTERED HERE!2");
+                Console.WriteLine(rpi.uid);
                 transactionsToAbort.Add(rpi, new List<long>());
+                
                 transactionsToAbort[rpi].Add(ts);
+
             }
 
 
@@ -290,8 +289,7 @@ namespace MasterServer
             {
                 urlFailed = serverUrlFailed;
                 serversLoad[serverUrlFailed] = int.MaxValue;
-                callCopyDataDelegate del = new callCopyDataDelegate(copyDataFromFailedServer);
-                IAsyncResult r = del.BeginInvoke(serverUrlFailed, null, null);
+                copyDataFromFailedServer(serverUrlFailed);
             }
             return true;
 
@@ -346,6 +344,8 @@ namespace MasterServer
 
 
             }
+            urlFailed = null;
+            serversLoad.Remove(serverUrlFailed);
             updateForm();
 
 

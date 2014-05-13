@@ -33,7 +33,7 @@ namespace SlaveServer
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
             props["port"] = 0;
-            props["timeout"] = 6000;
+            props["timeout"] = 8000;
             TcpChannel channel = new TcpChannel(props, null, provider);
 
             ChannelServices.RegisterChannel(channel, true);
@@ -97,7 +97,9 @@ namespace SlaveServer
         public bool ping()
         {
             while (freezed || failed) {
-                throw new SocketException();
+                Thread.Sleep(5000);
+                if(freezed|| failed)
+                    throw new SocketException();
             };
             return true;
             
@@ -142,23 +144,31 @@ namespace SlaveServer
         public void recover() {
             freezed = false;
             failed = false;
-            List<int> uidToRemove = new List<int>();
-            List<int> references = masterServ.recoverSlave();
+            //List<int> uidToRemove = new List<int>();
+            //List<int> references = masterServ.recoverSlave();
+            //foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
+            //{
+            //    if (references.Contains(entry.Key))
+            //    {
+            //        entry.Value.Recover();
+            //    }
+            //    else
+            //        uidToRemove.Add(entry.Key);
+                
+            //}
+            //foreach (int uid in uidToRemove)
+            //{
+            //    removePadInt(uid);
+            //}
+            //masterServ.updateLoad(url, padIntObjects.Count);
+
             foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
             {
-                if (references.Contains(entry.Key))
-                {
+               
                     entry.Value.Recover();
-                }
-                else
-                    uidToRemove.Add(entry.Key);
-                
+               
             }
-            foreach (int uid in uidToRemove)
-            {
-                removePadInt(uid);
-            }
-            masterServ.updateLoad(url, padIntObjects.Count);
+
         }
         public void status()
         {
