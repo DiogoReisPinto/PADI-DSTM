@@ -8,3 +8,13 @@ C:\Users\Andre\Documents\GitHub\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.Prop
 C:\Users\Andre\Documents\GitHub\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.csproj.GenerateResource.Cache
 C:\Users\Andre\Documents\GitHub\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.exe
 C:\Users\Andre\Documents\GitHub\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.pdb
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\bin\Debug\SlaveServer.exe.config
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\bin\Debug\SlaveServer.exe
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\bin\Debug\SlaveServer.pdb
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\bin\Debug\DSTMLib.dll
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\bin\Debug\DSTMLib.pdb
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.csprojResolveAssemblyReference.cache
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.Properties.Resources.resources
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.csproj.GenerateResource.Cache
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.exe
+C:\Users\Diogo\Source\Repos\PADI-DSTM\SlaveServer\obj\Debug\SlaveServer.pdb

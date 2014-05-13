@@ -18,8 +18,8 @@ namespace PADIDSTM
 
         public void Write(int value)
         {
-            bool success1;
-            bool success2;
+            bool success1=false;
+            bool success2=false;
             RemotePadInt[] RpadInt = DSTMLib.AccessRemotePadInt(uid);
             try
             {
@@ -29,7 +29,7 @@ namespace PADIDSTM
             catch (Exception)
             {
                 DSTMLib.TxAbort();
-                throw new TxException("Write canceled because server is unavailable. Transaction will abort");
+                //throw new TxException("Write canceled because server is unavailable. Transaction will abort");
                 
             }
             if (success1 && success2)
@@ -42,7 +42,7 @@ namespace PADIDSTM
             else
             {
                 DSTMLib.TxAbort();
-                throw new TxException("Write canceled because value to write is outdated");
+                //throw new TxException("Write canceled because value to write is outdated");
             }
         }
 

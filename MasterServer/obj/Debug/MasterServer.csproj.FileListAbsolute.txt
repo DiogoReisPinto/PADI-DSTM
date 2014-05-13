@@ -21,3 +21,14 @@ C:\Users\Andre\Documents\GitHub\PADI-DSTM\MasterServer\obj\Debug\MasterServer.Pr
 C:\Users\Andre\Documents\GitHub\PADI-DSTM\MasterServer\obj\Debug\MasterServer.csproj.GenerateResource.Cache
 C:\Users\Andre\Documents\GitHub\PADI-DSTM\MasterServer\obj\Debug\MasterServer.exe
 C:\Users\Andre\Documents\GitHub\PADI-DSTM\MasterServer\obj\Debug\MasterServer.pdb
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\bin\Debug\MasterServer.exe.config
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\bin\Debug\MasterServer.exe
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\bin\Debug\MasterServer.pdb
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\bin\Debug\DSTMLib.dll
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\bin\Debug\DSTMLib.pdb
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\obj\Debug\MasterServer.csprojResolveAssemblyReference.cache
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\obj\Debug\MasterServer.Form1.resources
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\obj\Debug\MasterServer.Properties.Resources.resources
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\obj\Debug\MasterServer.csproj.GenerateResource.Cache
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\obj\Debug\MasterServer.exe
+C:\Users\Diogo\Source\Repos\PADI-DSTM\MasterServer\obj\Debug\MasterServer.pdb

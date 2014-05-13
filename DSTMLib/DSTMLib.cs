@@ -26,8 +26,8 @@ namespace PADIDSTM
         public static Dictionary<RemotePadInt,string> createdPadInts;
 
         //Delegate for calling acess PadInts
-        public delegate RemotePadInt RemoteAsyncDelegate(int uid,long ts);
-        public delegate int callPrepareCommitDelegate(long ts);
+        public delegate RemotePadInt RemoteAccessCreateDelegate(int uid,long ts);
+        public delegate int callPrepareDelegate(long ts);
         public delegate bool declareSlaveFailedDelegate(string url);
 
         
@@ -56,7 +56,6 @@ namespace PADIDSTM
             tsValue = Convert.ToInt64(transactionTS.Split('#')[0]);
             visitedPadInts = new Dictionary<RemotePadInt,string>();
             createdPadInts = new Dictionary<RemotePadInt, string>();
-            Console.WriteLine("IN DSTMlib: "+transactionTS);
             return true;
         }
 
@@ -65,19 +64,19 @@ namespace PADIDSTM
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
             int votes = 0;
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
-            callPrepareCommitDelegate[] callsForCommit = new callPrepareCommitDelegate[expectedVotes];
+            callPrepareDelegate[] callsForCommit = new callPrepareDelegate[expectedVotes];
             KeyValuePair<RemotePadInt,string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt,string>[expectedVotes];
             int i=0;
             foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
-               callsForCommit[i] = new callPrepareCommitDelegate(entry.Key.prepareCommitTx);
+               callsForCommit[i] = new callPrepareDelegate(entry.Key.prepareCommitTx);
                PadIntsInTransaction[i] = entry;
                r[i] = callsForCommit[i].BeginInvoke(tsValue, null, null);
                i++;
             }
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
             {
-                callsForCommit[i] = new callPrepareCommitDelegate(entry.Key.prepareCommitPadInt);
+                callsForCommit[i] = new callPrepareDelegate(entry.Key.prepareCommitPadInt);
                 PadIntsInTransaction[i] = entry;
                 r[i] = callsForCommit[i].BeginInvoke(tsValue, null, null);
                 i++;        
@@ -100,19 +99,19 @@ namespace PADIDSTM
             if (votes == expectedVotes){
                 votes = 0;
                 IAsyncResult[] r2 = new IAsyncResult[expectedVotes];
-                callPrepareCommitDelegate[] callsForCommit2 = new callPrepareCommitDelegate[expectedVotes];
+                callPrepareDelegate[] callsForCommit2 = new callPrepareDelegate[expectedVotes];
                 KeyValuePair<RemotePadInt,string>[] PadIntsInTransaction2 = new KeyValuePair<RemotePadInt,string>[expectedVotes];
                 int j=0;
                 foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
                 {
-                    callsForCommit2[j] = new callPrepareCommitDelegate(entry.Key.commitTx);
+                    callsForCommit2[j] = new callPrepareDelegate(entry.Key.commitTx);
                     PadIntsInTransaction2[j] = entry;
                     r2[j] = callsForCommit2[j].BeginInvoke(tsValue, null, null);
                     j++;
                 }
                 foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
                 {
-                    callsForCommit2[j] = new callPrepareCommitDelegate(entry.Key.commitPadInt);
+                    callsForCommit2[j] = new callPrepareDelegate(entry.Key.commitPadInt);
                     PadIntsInTransaction2[j] = entry;
                     r2[j] = callsForCommit2[j].BeginInvoke(tsValue, null, null);
                     j++;        
@@ -155,12 +154,12 @@ namespace PADIDSTM
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
             int votes = 0;
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
-            callPrepareCommitDelegate[] callsForCommit = new callPrepareCommitDelegate[visitedPadInts.Count];
+            callPrepareDelegate[] callsForCommit = new callPrepareDelegate[visitedPadInts.Count];
             KeyValuePair<RemotePadInt, string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt, string>[visitedPadInts.Count];
             int i = 0;
             foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
-                callsForCommit[i] = new callPrepareCommitDelegate(entry.Key.abortTx);
+                callsForCommit[i] = new callPrepareDelegate(entry.Key.abortTx);
                 PadIntsInTransaction[i] = entry;
                 r[i] = callsForCommit[i].BeginInvoke(tsValue, null, null);
                 i++;
@@ -255,15 +254,14 @@ namespace PADIDSTM
             IAsyncResult r1 = null;
             IAsyncResult r2 = null;
 
-            RemoteAsyncDelegate RemoteDel1 = new RemoteAsyncDelegate(slave1.create);
+            RemoteAccessCreateDelegate RemoteDel1 = new RemoteAccessCreateDelegate(slave1.create);
             // Call remote method
             r1 = RemoteDel1.BeginInvoke(uid, tsValue, null, null);
 
 
-            RemoteAsyncDelegate RemoteDel2 = new RemoteAsyncDelegate(slave2.create);
+            RemoteAccessCreateDelegate RemoteDel2 = new RemoteAccessCreateDelegate(slave2.create);
             // Call remote method
             r2 = RemoteDel2.BeginInvoke(uid, tsValue, null, null);
-            //remotePadInts[1] = slave2.access(uid, tsValue);
             try
             {
                 createdRemotePadInt[0] = RemoteDel1.EndInvoke(r1);
@@ -328,16 +326,15 @@ namespace PADIDSTM
 
             IAsyncResult r1 = null;
             IAsyncResult r2 = null;
-           
-                RemoteAsyncDelegate RemoteDel1 = new RemoteAsyncDelegate(slave1.access);
+
+            RemoteAccessCreateDelegate RemoteDel1 = new RemoteAccessCreateDelegate(slave1.access);
                 // Call remote method
                 r1 = RemoteDel1.BeginInvoke(uid,tsValue,null,null);
-                
-           
-                RemoteAsyncDelegate RemoteDel2 = new RemoteAsyncDelegate(slave2.access);
+
+
+                RemoteAccessCreateDelegate RemoteDel2 = new RemoteAccessCreateDelegate(slave2.access);
                 // Call remote method
                 r2 = RemoteDel2.BeginInvoke(uid, tsValue, null, null);
-                //remotePadInts[1] = slave2.access(uid, tsValue);
                 try
                 {
                     remotePadInts[0] = RemoteDel1.EndInvoke(r1);
@@ -358,7 +355,6 @@ namespace PADIDSTM
                     remotePadInts = AccessRemotePadInt(uid);
                     return remotePadInts;
                 }
-                masterServ.printSomeShit(remotePadInts[1].url + remotePadInts[0].url);
             return remotePadInts;
         }
 
