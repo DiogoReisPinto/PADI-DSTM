@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApplication1
+namespace ClientPerformance
 {
     using System;
     using PADIDSTM;
 
-    class SampleApp
+    class ClientPerformance
     {
         static void Main(string[] args)
         {
@@ -50,4 +50,3 @@ namespace ConsoleApplication1
         }
     }
 }
-
