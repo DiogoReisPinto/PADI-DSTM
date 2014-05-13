@@ -34,7 +34,6 @@ namespace ConsoleApplication1
                 catch (Exception)
                 {
                     DSTMLib.TxAbort();
-                    //continue;
                 }
                 res = DSTMLib.TxCommit();
             }

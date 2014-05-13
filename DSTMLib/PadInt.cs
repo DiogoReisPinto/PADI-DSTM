@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,11 +28,22 @@ namespace PADIDSTM
                 success1 = RpadInt[0].Write(value, DSTMLib.transactionTS);
                 success2 = RpadInt[1].Write(value, DSTMLib.transactionTS);
             }
-            catch (Exception)
+            catch (TxException e)
             {
                 DSTMLib.TxAbort();
-                //throw new TxException("Write canceled because server is unavailable. Transaction will abort");
-                
+                string msg = e.message;
+                throw new TxException(msg);
+
+            }
+            catch (IOException)
+            {
+                DSTMLib.TxAbort();
+                throw new TxException("Cant write commit because server to write is not available. Transaction Aborted");
+            }
+            catch (SocketException)
+            {
+                DSTMLib.TxAbort();
+                throw new TxException("Cant write commit because server to write is not available. Transaction Aborted");
             }
             if (success1 && success2)
             {
@@ -42,7 +55,7 @@ namespace PADIDSTM
             else
             {
                 DSTMLib.TxAbort();
-                //throw new TxException("Write canceled because value to write is outdated");
+                throw new TxException("Write canceled. Transaction aborted");
             }
         }
 

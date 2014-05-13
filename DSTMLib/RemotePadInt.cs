@@ -133,7 +133,6 @@ namespace PADIDSTM
             string[] txID = ts.Split('#');
 
             long tc = Convert.ToInt64(txID[0]);
-            //NOT USED FOR CHECKPOINT IMPLEMENTATION
             int tieBreaker = Convert.ToInt32(ts.Split('#')[1]);
             ISlave server = (ISlave)Activator.GetObject(
                                     typeof(ISlave),
