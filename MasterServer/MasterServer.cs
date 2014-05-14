@@ -36,6 +36,7 @@ namespace MasterServer
         private List<int> padIntsToRemoveFromFailed = new List<int>();
         private int transactionID = 0;
         private Object tIDLock = new Object();
+        private Object urlLock = new Object();
         private Object padIntLocationLock = new Object();
         private Form1 form;
         private delegate bool declareSlaveFailedDelegate(string url);
@@ -47,7 +48,6 @@ namespace MasterServer
 
         public string[] GetLocationNewPadInt(int uid)
         {
-            Console.WriteLine("GET Location New Pad Int with id: {0}",uid);
             string[] urlServerDest = null;
             //CALL TO THE LOAD BALANCER ALGORITHM 
             lock (padIntLocationLock)
@@ -57,16 +57,16 @@ namespace MasterServer
                 {
                     urlServerDest = getBestSlaves(2);
                     padIntLocation.Add(uid, new string[] { "UNDEFINED", "UNDEFINED" });
-                    Console.WriteLine("Added new PadIntLocation for uid:{0} with UNDEFINED",uid);
+                   
                     
                 }
                 else
                 {
                     urlServerDest = null;
-                    Console.WriteLine("Returned an null URL because PadInt already exists");
+                    
                 }
             }
-            Console.WriteLine("Exit GetLocationNewPadInt");
+            
             return urlServerDest;
             
         }
@@ -145,15 +145,18 @@ namespace MasterServer
 
         public void RegisterNewPadInt(int uid, string serverURL)
         {
-            if (padIntLocation[uid][0] == "UNDEFINED")
+            lock (urlLock)
             {
-                padIntLocation[uid][0] = serverURL;
-                serversLoad[serverURL]++;
-            }
-            else
-            {
-                padIntLocation[uid][1] = serverURL;
-                serversLoad[serverURL]++;
+                if (padIntLocation[uid][0] == "UNDEFINED")
+                {
+                    padIntLocation[uid][0] = serverURL;
+                    serversLoad[serverURL]++;
+                }
+                else
+                {
+                    padIntLocation[uid][1] = serverURL;
+                    serversLoad[serverURL]++;
+                }
             }
             updateForm();
         }
@@ -181,7 +184,6 @@ namespace MasterServer
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("Server with url {0} is unavailable", slave);
                     continue;
                 }
             }
@@ -189,19 +191,14 @@ namespace MasterServer
 
         public void addTransactionToAbort(RemotePadInt rpi, long ts)
         {
-            Console.WriteLine("I HAVE ENTERED HERE!");
             if (transactionsToAbort.ContainsKey(rpi))
             {
-                Console.WriteLine("I HAVE ENTERED HERE!1");
                 transactionsToAbort[rpi].Add(ts);
 
             }
             else
             {
-                Console.WriteLine("I HAVE ENTERED HERE!2");
-                Console.WriteLine(rpi.uid);
                 transactionsToAbort.Add(rpi, new List<long>());
-                
                 transactionsToAbort[rpi].Add(ts);
 
             }
@@ -323,7 +320,7 @@ namespace MasterServer
                 //CASO EM QUE E O SEGUNDO A ESTAR DOWN
                 else if (entry.Value[1] == serverUrlFailed)
                 {
-                    Console.WriteLine("Trying to find URL to exchange with url:{0}", serverUrlFailed);
+                    
                     entry.Value[1] = "COPYING";
                     string URLWithPadIntAvaliable = entry.Value[0];
                     string newURL = getSlaveToCopy(URLWithPadIntAvaliable);

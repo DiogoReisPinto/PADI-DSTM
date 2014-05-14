@@ -129,7 +129,6 @@ namespace PADIDSTM
             {
                 while (true) { }
             }
-            Console.WriteLine("uid:" + uid + " ts: " + ts);
             string[] txID = ts.Split('#');
 
             long tc = Convert.ToInt64(txID[0]);

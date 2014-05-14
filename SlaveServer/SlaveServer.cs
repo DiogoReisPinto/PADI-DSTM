@@ -144,24 +144,6 @@ namespace SlaveServer
         public void recover() {
             freezed = false;
             failed = false;
-            //List<int> uidToRemove = new List<int>();
-            //List<int> references = masterServ.recoverSlave();
-            //foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
-            //{
-            //    if (references.Contains(entry.Key))
-            //    {
-            //        entry.Value.Recover();
-            //    }
-            //    else
-            //        uidToRemove.Add(entry.Key);
-                
-            //}
-            //foreach (int uid in uidToRemove)
-            //{
-            //    removePadInt(uid);
-            //}
-            //masterServ.updateLoad(url, padIntObjects.Count);
-
             foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
             {
                

@@ -37,7 +37,7 @@ namespace PADIDSTM
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
             props["port"] = 0;
-            props["timeout"] = 10000; // in milliseconds
+            //props["timeout"] = 10000; // in milliseconds
             TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
@@ -152,6 +152,7 @@ namespace PADIDSTM
         {
             List<int> UIDsToRemove = new List<int>();
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
+            Console.WriteLine("Expected Votes are: " + expectedVotes);
             int votes = 0;
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
             callPrepareDelegate[] callsForCommit = new callPrepareDelegate[visitedPadInts.Count];
