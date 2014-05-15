@@ -22,10 +22,11 @@ namespace SlaveServer
         
         static void Main()
         {
-            bool res = login();
-            Console.Read();
+            bool res = login(); 
+            Console.Read(); //SLAVE KEPT IN A CYCLE RECEIVING CALLS
         }
 
+        //STARTS THE CONNECTION TO THE MASTER AND REGISTER
         public static bool login()
         {
 
@@ -66,7 +67,7 @@ namespace SlaveServer
 
         
 
-        //tid==0 is from a call for copy padint - tolerant version
+        //TID==0 IS FOR A RECOVER CALL
         public RemotePadInt access(int uid,long tid)
         {
             bool res = ping();
@@ -74,7 +75,7 @@ namespace SlaveServer
             if (tid == req.creatorTID || tid==0) //IF THE TRANSACTION TRYING TO ACCESS IS THE ONE THAT CREATED IT OR A ACCESS RECOVER CALL
                 return req;
             if(!req.isCommited){
-                Thread.Sleep(1000);
+                Thread.Sleep(2000); //WAITS FOR THE TRANSACTION TO COMMIT
                 if (req.isCommited)
                 {
                     return req;
@@ -85,12 +86,13 @@ namespace SlaveServer
             return req;
         }
 
-
+        //METHOD USED FOR READS AND WRITES TO KNOW IF SLAVE IS UNAVAILABLE OR NOT
         public void checkStatus()
         {
             while (freezed || failed) { }
         }
 
+        //METHOD FOR KNOWING IF SLAVE IS RESPONDING OR NOT - WAITS 5 SECONDS - SIMULATE A 5 SECOND DELAY
         public bool ping()
         {
             while (freezed || failed) {
@@ -108,11 +110,12 @@ namespace SlaveServer
             bool res = ping();
             RemotePadInt newPadInt = new RemotePadInt(uid, url);
             newPadInt.creatorTID = tid;
-            padIntObjects.Add(uid, newPadInt);
-            masterServ.RegisterNewPadInt(uid, url);
+            padIntObjects.Add(uid, newPadInt); //ADS THE PADINT TO THE LIST OF PADINTS IN THE SERVER
+            masterServ.RegisterNewPadInt(uid, url); //CONFIRMATION OF THE CREATION OF THE PADINT IN THE SERVER TO THE MASTER
             return newPadInt;
         }
 
+        //METHOD CALLED IN A RECOVER CONTEXT - JUST ADDS THE PADINT TO THE SLAVE
         public void addCopyOfPadInt(RemotePadInt pi)
         {
             padIntObjects.Add(pi.uid,pi);
@@ -160,7 +163,7 @@ namespace SlaveServer
             else
                 Console.WriteLine("SERVER IS OK");
             Console.WriteLine("------------STORED OBJECTS------------");
-            foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects)
+            foreach (KeyValuePair<int, RemotePadInt> entry in padIntObjects) //FINDS THE CORRECT TENTATIVE VERSION OF PADINT - THE ONE WITH THE GREATEST TS AND COMMITED 
             {
                 long maxTS = long.MinValue;
                 TVersion actual = null;
@@ -173,7 +176,7 @@ namespace SlaveServer
                     }
                 }
                 if(actual==null)
-                    Console.WriteLine("PadInt with uid:{0} and value:{1}", entry.Key, 0);
+                    Console.WriteLine("PadInt with uid:{0} and value:{1}", entry.Key, 0); //WHEN PADINT HAS NOT TVERSIONS
                 else
                     Console.WriteLine("PadInt with uid:{0} and value:{1}", entry.Key, actual.versionVal);
             }
@@ -186,6 +189,7 @@ namespace SlaveServer
 
         }
 
+        //REMOVES THE PADINT FROM THE LIST OF PADINTS OF THE SLAVE
         public void removePadInt(int id)
         {
             padIntObjects.Remove(id);
