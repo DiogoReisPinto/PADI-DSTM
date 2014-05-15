@@ -31,10 +31,8 @@ namespace MasterServer
     {
         private Dictionary<string, int> serversLoad = new Dictionary<string, int>();
         private Dictionary<int, string[]> padIntLocation = new Dictionary<int, string[]>();
-        private string urlFailed;
-        private Dictionary<RemotePadInt, List<long>> transactionsToAbort = new Dictionary<RemotePadInt, List<long>>();
-        private List<int> padIntsToRemoveFromFailed = new List<int>();
-        private int transactionID = 0;
+        private string urlFailed; //URL OF A SERVER THAT IS FAILED
+        private int transactionID = 0; //ID THAT WILL BE USED FOR TIE-BREAKER
         private Object tIDLock = new Object();
         private Object urlLock = new Object();
         private Object padIntLocationLock = new Object();
@@ -72,7 +70,7 @@ namespace MasterServer
         }
 
        
-
+        //RETURNS THE NUM LESS LOADED SLAVES
         private string[] getBestSlaves(int num)
         {
             String[] url = new String[num];
@@ -121,6 +119,7 @@ namespace MasterServer
         }
 
 
+        //WILL GIVE ALL THE PADINTS THAT BELONG TO THE SLAVE THAT FAILED
         public List<int> recoverSlave()
         {
             List<int> refs = getReferences(urlFailed);
@@ -128,10 +127,15 @@ namespace MasterServer
             return refs;
         }
 
-        public string GetTS(int uid)
+
+        public string GetTS()
         {
-            //uid of slave server for tie-breaker
-            string timestamp = TimeStamp.GetTimestamp(DateTime.Now) + "#" + uid;
+            int tID;
+            lock (tIDLock)
+            {
+                tID = transactionID++;
+            }
+            string timestamp = TimeStamp.GetTimestamp(DateTime.Now) + "#" + tID; //TIMESTAMP WITH THE TIE-BREAKER
             return timestamp;
         }
 
@@ -143,6 +147,7 @@ namespace MasterServer
             return true;
         }
 
+        //THIS FUNCTION IS CALLED AFTER EACH SLAVE CREATES THE PADINT. USED FOR VERIFY THE CREATION
         public void RegisterNewPadInt(int uid, string serverURL)
         {
             lock (urlLock)
@@ -161,16 +166,7 @@ namespace MasterServer
             updateForm();
         }
 
-        public int getTransactionID()
-        {
-            int tID;
-            lock (tIDLock)
-            {
-                tID = transactionID++;
-            }
-            return tID;
-        }
-
+       
         public void callStatusOnSlaves()
         {
             foreach (string slave in serversLoad.Keys)
@@ -189,33 +185,12 @@ namespace MasterServer
             }
         }
 
-        public void addTransactionToAbort(RemotePadInt rpi, long ts)
-        {
-            if (transactionsToAbort.ContainsKey(rpi))
-            {
-                transactionsToAbort[rpi].Add(ts);
-
-            }
-            else
-            {
-                transactionsToAbort.Add(rpi, new List<long>());
-                transactionsToAbort[rpi].Add(ts);
-
-            }
-
-
-        }
-
-        public void addPadIntToRemoveFromFailed(int uid)
-        {
-            padIntsToRemoveFromFailed.Add(uid);
-        }
-
+        //CALLED IN THE CONTEXT OF AN TRANSACTION THAT ABORTED AND WANT TO ABORT THE CREATED PADINTS
         public void removeUID(List<int> UIDsToRemove)
         {
             foreach (int id in UIDsToRemove)
             {
-                //SÃO ADICIONADOS OS 2 REMOTE PADINTS A REMOVER MAS APENAS SAO APAGADOS UMA VEZ
+                //WE HAVE ALWAYS TWO PADINTS (BECAUSE OF REPLICATION) BUT WE ONLY DELETE ONE TIME PADINTLOCATION ENTRY
                 if (padIntLocation.ContainsKey(id))
                 {
                     string[] url = padIntLocation[id];
@@ -260,7 +235,7 @@ namespace MasterServer
 
         }
 
-
+        //FINDS A SLAVE TO COPY A PADINT FROM A SERVER FAILED AND THAT EXISTS IN THE SERVER AT urlPadIntAvailable
         private string getSlaveToCopy(string urlPadIntAvailable)
         {
             string url=null;
@@ -280,9 +255,10 @@ namespace MasterServer
             return url;
         }
 
+        //CALLED WHEN IS DETECTED THAT A SERVER IS FAILED
         public bool declareSlaveFailed(string serverUrlFailed)
         {
-            if (urlFailed == null)
+            if (urlFailed == null) //WE ONLY DECLARE THE SLAVE FAILED ONE TIME FOR THE SAME SLAVE
             {
                 urlFailed = serverUrlFailed;
                 serversLoad[serverUrlFailed] = int.MaxValue;
@@ -292,12 +268,13 @@ namespace MasterServer
 
         }
 
+        //WILL COPY ALL THE PADINTS FROM THE FAILED SERVER TO THE NEW ONE AND REFRESH ALL THE NECESSARY STRUCTURES
         private void copyDataFromFailedServer(string serverUrlFailed)
         {
-            foreach (KeyValuePair<int, string[]> entry in padIntLocation)
+            foreach (KeyValuePair<int, string[]> entry in padIntLocation) 
             {
-                //CASO EM QUE E O PRIMEIRO URL QUE ESTA DOWN
-
+                
+                //IF ITS THE FIRST SLAVE ON URL OF PADINT THAT IS FAILED
                 if (entry.Value[0] == serverUrlFailed)
                 {
                     entry.Value[0] = "COPYING";
@@ -309,15 +286,13 @@ namespace MasterServer
                     ISlave slaveToCreate = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                newURL);
-                    //Adicionar o PADInt para remover depois de o servidor ser declarado como morto
-                    addPadIntToRemoveFromFailed(entry.Key);
-                    RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0);
-                    RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
+                    RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0); //SPECIAL CALL WITH TS==0
+                    RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);//SPECIAL CONSTRUCT
                     slaveToCreate.addCopyOfPadInt(newPadInt);
                     entry.Value[0] = newURL;
                     serversLoad[newURL]++;
                 }
-                //CASO EM QUE E O SEGUNDO A ESTAR DOWN
+                //IF ITS THE SECOND SLAVE ON URL OF PADINT THAT IS FAILED
                 else if (entry.Value[1] == serverUrlFailed)
                 {
                     
@@ -330,10 +305,8 @@ namespace MasterServer
                     ISlave slaveToCreate = (ISlave)Activator.GetObject(
                                    typeof(ISlave),
                                newURL);
-                    //Adicionar o PADInt para remover depois de o servidor ser declarado como morto
-                    addPadIntToRemoveFromFailed(entry.Key);
-                    RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0);
-                    RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);
+                    RemotePadInt availablePadInt = slaveToCopy.access(entry.Key, 0); //SPECIAL CALL WITH TS==
+                    RemotePadInt newPadInt = new RemotePadInt(availablePadInt, newURL);//SPECIAL CONSTRUCT
                     slaveToCreate.addCopyOfPadInt(newPadInt);
                     entry.Value[1] = newURL;
                     serversLoad[newURL]++;
@@ -341,6 +314,7 @@ namespace MasterServer
 
 
             }
+            //AFTER RECOVERING WILL UPDATE THE URL OF FAILED SERVER AND REMOVE THE FAILED SERVER FROM THE LIST OF SLAVES
             urlFailed = null;
             serversLoad.Remove(serverUrlFailed);
             updateForm();
@@ -348,6 +322,7 @@ namespace MasterServer
 
         }
 
+        //WILL RETURN ALL THE PADINTS UID THAT EXIST ON SERVER WITH URL:url
         public List<int> getReferences(string url){
             List<int> references= new List<int>();
             foreach(KeyValuePair<int,string[]> rpi in padIntLocation){
@@ -357,17 +332,13 @@ namespace MasterServer
             return references;
         }
 
-
-        public void printSomeShit(string toPrint)
-        {
-            Console.WriteLine(toPrint);
-        }
-
+        //WILL UPDATE LOAD OF THE SERVER WITH THE NEW VALUE
         public bool updateLoad(string slaveUrl, int load)
         {
             serversLoad[slaveUrl] = load;
             return true;
         }
+
 
         public int getLoad(string slaveUrl)
         {
@@ -377,9 +348,7 @@ namespace MasterServer
         
     }
 
-
-
-
+        //CLASS USED TO GENERATE TIMESTAMPS
         public static class TimeStamp
         {
             public static String GetTimestamp(this DateTime value)

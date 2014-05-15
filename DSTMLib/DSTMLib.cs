@@ -19,12 +19,12 @@ namespace PADIDSTM
     {
 
         public static IMaster masterServ;
-        public static string transactionTS; //Transaction TimeStamp with tieBreaker
-        public static long tsValue; //Timestamp Value without tieBreakers
+        public static string transactionTS; //TRANSACTION TIMESTAMP WITH TIEBREAKER
+        public static long tsValue; //TIMESTAMP VALUE WITHOUT TIEBREAKER
         public static Dictionary<RemotePadInt,string> visitedPadInts;
         public static Dictionary<RemotePadInt,string> createdPadInts;
 
-        //Delegates used for async calls to Access a RemotePadInt, to call prepares (commit or abort) and for declare slave failedss
+        //DELEGATES USED FOR ASYNC CALLS:ACCESSES, PREPARES AND TO DECLARE A SLAVE FAILED RESPECTIVELY
         public delegate RemotePadInt RemoteAccessCreateDelegate(int uid,long ts);
         public delegate int callPrepareDelegate(long ts);
         public delegate bool declareSlaveFailedDelegate(string url);
@@ -35,8 +35,8 @@ namespace PADIDSTM
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
-            props["port"] = 0; //finds automatically a port available
-            props["timeout"] = 5000; // Timeout for the client
+            props["port"] = 0; //FINDS AUTOMATICALLY A PORT AVAILABLE
+            props["timeout"] = 5000; // TIMEOUT FOR THE CLIENT
             TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
@@ -49,8 +49,7 @@ namespace PADIDSTM
         }
 
         public static bool TxBegin() {
-            int tID = masterServ.getTransactionID();
-            string timeStamp = masterServ.GetTS(tID);
+            string timeStamp = masterServ.GetTS();
             transactionTS = timeStamp;
             tsValue = Convert.ToInt64(transactionTS.Split('#')[0]);
             visitedPadInts = new Dictionary<RemotePadInt,string>();
@@ -154,16 +153,17 @@ namespace PADIDSTM
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
             int votes = 0; 
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
-            callPrepareDelegate[] callsForCommit = new callPrepareDelegate[visitedPadInts.Count];
-            KeyValuePair<RemotePadInt, string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt, string>[visitedPadInts.Count];
+            callPrepareDelegate[] callsForAbort = new callPrepareDelegate[visitedPadInts.Count];
+            KeyValuePair<RemotePadInt, string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt, string>[visitedPadInts.Count]; //LIST OF VISITED PADINT OF TRANSACTION
             int i = 0;
             foreach (KeyValuePair<RemotePadInt, string> entry in visitedPadInts)
             {
-                callsForCommit[i] = new callPrepareDelegate(entry.Key.abortTx);
+                callsForAbort[i] = new callPrepareDelegate(entry.Key.abortTx);
                 PadIntsInTransaction[i] = entry;
-                r[i] = callsForCommit[i].BeginInvoke(tsValue, null, null);
+                r[i] = callsForAbort[i].BeginInvoke(tsValue, null, null);
                 i++;
             }
+            //ADDS PADINT UID TO REMOVE ON THE CONTEXT OF THE TRANSACTION ABORT
             foreach (KeyValuePair<RemotePadInt, string> entry in createdPadInts)
             {
                 try
@@ -176,21 +176,20 @@ namespace PADIDSTM
                     masterServ.declareSlaveFailed(entry.Value);
                 }
             }
-
+            //WILL WAIT FOR ALL THE VISITEDPADINTS TO ABORT
             for (int j = 0; j < visitedPadInts.Count; j++)
             {
                 try
                 {
-                    votes += callsForCommit[j].EndInvoke(r[j]);
+                    votes += callsForAbort[j].EndInvoke(r[j]);
                 }
                 catch (Exception)
                 {
                     masterServ.declareSlaveFailed(PadIntsInTransaction[j].Value);
                 }
             }
-  
-            masterServ.removeUID(UIDsToRemove);
-            if (votes == expectedVotes)
+            masterServ.removeUID(UIDsToRemove); //MAKES THE CALL TO REMOVE CREATED PADINTS
+            if (votes == expectedVotes) //CHECKS IF ALL WENT WELL ON THE ABORT OPERATION
                 return true;
             else
                 return false;
@@ -231,7 +230,8 @@ namespace PADIDSTM
             RemotePadInt[] RPadInts = CreateRemotePadInt(uid);
             if (RPadInts == null)
                 return null;
-            PadInt newPad = new PadInt(RPadInts[0].uid);
+            PadInt newPad = new PadInt(RPadInts[0].uid); //WILL CREATE WITH UID OF ONE OF THE CREATED PADINTS
+            //WILL ADD BOTH CREATED PADINTS TO CREATEDPADINTS LIST FOR COMMIT/ABORT OPERATIONS
             createdPadInts.Add(RPadInts[0], RPadInts[0].url);
             createdPadInts.Add(RPadInts[1], RPadInts[1].url);
             return newPad;
@@ -240,7 +240,7 @@ namespace PADIDSTM
         public static RemotePadInt[] CreateRemotePadInt(int uid){
             string[] url = new String[2];
             RemotePadInt[] createdRemotePadInt = new RemotePadInt[2];
-            url = masterServ.GetLocationNewPadInt(uid);
+            url = masterServ.GetLocationNewPadInt(uid); //CHECKS IF PADINT ALREADY EXISTS
             if (url == null)
             {
                 return null;
@@ -253,7 +253,7 @@ namespace PADIDSTM
                               url[1]);
             IAsyncResult r1 = null;
             IAsyncResult r2 = null;
-
+            //WILL MAKE ASYNCHRONOUS CALLS TO THE TWO SLAVES FOR CREATING PADINT
             RemoteAccessCreateDelegate RemoteDel1 = new RemoteAccessCreateDelegate(slave1.create);
             // Call remote method
             r1 = RemoteDel1.BeginInvoke(uid, tsValue, null, null);
@@ -262,6 +262,9 @@ namespace PADIDSTM
             RemoteAccessCreateDelegate RemoteDel2 = new RemoteAccessCreateDelegate(slave2.create);
             // Call remote method
             r2 = RemoteDel2.BeginInvoke(uid, tsValue, null, null);
+
+            //WILL WAIT FOR THE CALLS TO END AND IF EXCEPTION THROWN WILL DECLARE THE SLAVE FAILED
+
             try
             {
                 createdRemotePadInt[0] = RemoteDel1.EndInvoke(r1);
@@ -287,13 +290,14 @@ namespace PADIDSTM
 
         public static PadInt AccessPadInt(int uid) {
             RemotePadInt[] newRemotePadInt = AccessRemotePadInt(uid);
-            if (newRemotePadInt[0] == null || newRemotePadInt[1]==null)
+            if (newRemotePadInt[0] == null || newRemotePadInt[1]==null) //IF THERE WERE A PROBLEM ACCESSING PADINTS
             {
                 return null;
             }
             PadInt newPad = new PadInt(newRemotePadInt[0].uid);
             return newPad;
         }
+
 
         public static int getServerLoad(string url)
         {
@@ -327,31 +331,30 @@ namespace PADIDSTM
             IAsyncResult r1 = null;
             IAsyncResult r2 = null;
 
+            //WILL MAKE ASYNC CALLS TO ACCESS ON EACH SLAVE SERVER
             RemoteAccessCreateDelegate RemoteDel1 = new RemoteAccessCreateDelegate(slave1.access);
-                // Call remote method
-                r1 = RemoteDel1.BeginInvoke(uid,tsValue,null,null);
-
-
-                RemoteAccessCreateDelegate RemoteDel2 = new RemoteAccessCreateDelegate(slave2.access);
-                // Call remote method
-                r2 = RemoteDel2.BeginInvoke(uid, tsValue, null, null);
-                try
+            r1 = RemoteDel1.BeginInvoke(uid,tsValue,null,null);
+            RemoteAccessCreateDelegate RemoteDel2 = new RemoteAccessCreateDelegate(slave2.access);
+            r2 = RemoteDel2.BeginInvoke(uid, tsValue, null, null);
+            
+            //WILL WAIT FOR THE CALLS TO END
+            try
                 {
                     remotePadInts[0] = RemoteDel1.EndInvoke(r1);
                 }
                 catch (Exception)
                 {
-                    masterServ.declareSlaveFailed(url[0]);
+                    masterServ.declareSlaveFailed(url[0]); //DECLARES THE SLAVE FAILED AND RETRY TO ACCESS
                     remotePadInts = AccessRemotePadInt(uid);
                     return remotePadInts;
                 }
-                try
+            try
                 {
                     remotePadInts[1] = RemoteDel2.EndInvoke(r2);
                 }
                 catch (Exception)
                 {
-                    masterServ.declareSlaveFailed(url[1]);
+                    masterServ.declareSlaveFailed(url[1]);//DECLARES THE SLAVE FAILED AND RETRY TO ACCESS
                     remotePadInts = AccessRemotePadInt(uid);
                     return remotePadInts;
                 }
