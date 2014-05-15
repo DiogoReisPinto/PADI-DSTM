@@ -53,16 +53,16 @@ namespace MasterServer
             lock (padIntLocationLock)
             {
                 urlServerDest = DiscoverPadInt(uid);
-                if (urlServerDest[0] == null)
+                if (urlServerDest[0] == null) //IF ONE OF THE URL IS NULL IS BECAUSE PADINT DOESNT EXIST
                 {
-                    urlServerDest = getBestSlaves(2);
-                    padIntLocation.Add(uid, new string[] { "UNDEFINED", "UNDEFINED" });
+                    urlServerDest = getBestSlaves(2); //FINDS THE TWO LESS LOADED SERVERS
+                    padIntLocation.Add(uid, new string[] { "UNDEFINED", "UNDEFINED" }); //ADDS AN ENTRY TO RESERVE THE PADINT. LATER WILL CONFIRM
                    
                     
                 }
                 else
                 {
-                    urlServerDest = null;
+                    urlServerDest = null;//WILL RETURN NULL FOR CALLER TO KNOW THAT PADINT ALREADY EXISTS
                     
                 }
             }
@@ -87,7 +87,7 @@ namespace MasterServer
                                        typeof(ISlave),
                                    item.Key);
                 try { 
-                    bool res = slave.ping();
+                    bool res = slave.ping(); //CALL TO KNOW IF SERVER IS AVAILABLE OR NOT
                     url[i] = item.Key;
                     i++;
                     if (i == num)
@@ -95,7 +95,7 @@ namespace MasterServer
                 }
                 catch (Exception)
                 {
-                    declareSlaveFailedDelegate del = new declareSlaveFailedDelegate(declareSlaveFailed);
+                    declareSlaveFailedDelegate del = new declareSlaveFailedDelegate(declareSlaveFailed); //WILL CALL IN ANOTHER THREAD PROTOCOL TO RECOVER FAILED SERVER
                     IAsyncResult r = del.BeginInvoke(item.Key, null, null);
                    continue;
                 }
@@ -105,7 +105,7 @@ namespace MasterServer
         }
 
         
-
+        //IF PADINT EXISTS WILL RETURN AN ARRAY OF THE TWO URL WHERE IT IS. IF NOT EXISTS WILL RETURN NULL
         public string[] DiscoverPadInt(int uid)
         {
             string[] url = new string[2];
@@ -117,9 +117,9 @@ namespace MasterServer
                     url[1] = entry.Value[1];
                 }
             }
-            return url;
-            
+            return url; 
         }
+
 
         public List<int> recoverSlave()
         {

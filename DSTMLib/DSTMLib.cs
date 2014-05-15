@@ -19,13 +19,12 @@ namespace PADIDSTM
     {
 
         public static IMaster masterServ;
-
-        public static string transactionTS;
-        public static long tsValue;
+        public static string transactionTS; //Transaction TimeStamp with tieBreaker
+        public static long tsValue; //Timestamp Value without tieBreakers
         public static Dictionary<RemotePadInt,string> visitedPadInts;
         public static Dictionary<RemotePadInt,string> createdPadInts;
 
-        //Delegate for calling acess PadInts
+        //Delegates used for async calls to Access a RemotePadInt, to call prepares (commit or abort) and for declare slave failedss
         public delegate RemotePadInt RemoteAccessCreateDelegate(int uid,long ts);
         public delegate int callPrepareDelegate(long ts);
         public delegate bool declareSlaveFailedDelegate(string url);
@@ -36,8 +35,8 @@ namespace PADIDSTM
             BinaryServerFormatterSinkProvider provider = new BinaryServerFormatterSinkProvider();
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
-            props["port"] = 0;
-            //props["timeout"] = 10000; // in milliseconds
+            props["port"] = 0; //finds automatically a port available
+            props["timeout"] = 5000; // Timeout for the client
             TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(
@@ -82,6 +81,7 @@ namespace PADIDSTM
                 i++;        
             }
 
+            //FIRST PHASE OF 2PC PROTOCOL - WAITING FOR THE VOTES
             for (int j = 0; j < expectedVotes; j++)
             {
                 try
@@ -95,9 +95,9 @@ namespace PADIDSTM
                     return false;
                 }
             }
-                //COMMIT MESSAGES FOR COMMITING ON SECOND PHASE 2PC
+            //SECOND PHASE OF 2PC - IF ALL VOTED YES WILL COMMIT OTHERWHISE ABORT
             if (votes == expectedVotes){
-                votes = 0;
+                votes = 0; //ACKS RECEIVED
                 IAsyncResult[] r2 = new IAsyncResult[expectedVotes];
                 callPrepareDelegate[] callsForCommit2 = new callPrepareDelegate[expectedVotes];
                 KeyValuePair<RemotePadInt,string>[] PadIntsInTransaction2 = new KeyValuePair<RemotePadInt,string>[expectedVotes];
@@ -116,7 +116,7 @@ namespace PADIDSTM
                     r2[j] = callsForCommit2[j].BeginInvoke(tsValue, null, null);
                     j++;        
                 }
-
+            //COUNTING ACKS FOR THE SECOND PHASE OF 2PC
             for (int k = 0; k < expectedVotes; k++)
             {
                 try
@@ -130,7 +130,7 @@ namespace PADIDSTM
                 }
             }
                 
-           
+                //IF ALL ACKS RECEIVED
                 if (votes == expectedVotes)
                     return true;
                 else
@@ -150,10 +150,9 @@ namespace PADIDSTM
 
         public static bool TxAbort()
         {
-            List<int> UIDsToRemove = new List<int>();
+            List<int> UIDsToRemove = new List<int>(); //LIST OF UID THAT WERE CREATED AND NEED TO BE REMOVED
             int expectedVotes = visitedPadInts.Count + createdPadInts.Count;
-            Console.WriteLine("Expected Votes are: " + expectedVotes);
-            int votes = 0;
+            int votes = 0; 
             IAsyncResult[] r = new IAsyncResult[expectedVotes];
             callPrepareDelegate[] callsForCommit = new callPrepareDelegate[visitedPadInts.Count];
             KeyValuePair<RemotePadInt, string>[] PadIntsInTransaction = new KeyValuePair<RemotePadInt, string>[visitedPadInts.Count];
@@ -307,13 +306,13 @@ namespace PADIDSTM
         public static RemotePadInt[] AccessRemotePadInt(int uid) {
             string[] url = masterServ.DiscoverPadInt(uid);
             RemotePadInt[] remotePadInts = new RemotePadInt[2];
-            if (url[0] == "COPYING" || url[1] == "COPYING")
+            if (url[0] == "COPYING" || url[1] == "COPYING") //CASE THAT A PADINT IS GOING TO BE RECOVERED
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(1000); //WAITS A SECOND FOR THE PADINT TO BE RECOVERED AND WILL TRY AGAIN TO ACCESS
                 remotePadInts = AccessRemotePadInt(uid);
                 return remotePadInts;
             }
-            if (url[0] == null || url[1] == null || url[0] == "UNDEFINED" || url[1] == "UNDEFINED")
+            if (url[0] == null || url[1] == null || url[0] == "UNDEFINED" || url[1] == "UNDEFINED") //CASE THAT PADINT NOT EXISTS
             {
                 return remotePadInts;
             }
