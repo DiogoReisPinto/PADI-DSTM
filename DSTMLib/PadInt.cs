@@ -65,7 +65,7 @@ namespace PADIDSTM
             int val;
             try
             {
-                val = RpadInt[0].Read(DSTMLib.transactionTS);
+                val = RpadInt[0].Read(DSTMLib.transactionTS); //ONLY READS A VALUE FROM ONE OF THE ACCESSED PADINTS
             }
             catch (TxException e)
             {

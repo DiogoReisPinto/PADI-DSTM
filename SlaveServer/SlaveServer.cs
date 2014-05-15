@@ -69,10 +69,9 @@ namespace SlaveServer
         //tid==0 is from a call for copy padint - tolerant version
         public RemotePadInt access(int uid,long tid)
         {
-
             bool res = ping();
             RemotePadInt req = padIntObjects[uid];
-            if (tid == req.creatorTID || tid==0)
+            if (tid == req.creatorTID || tid==0) //IF THE TRANSACTION TRYING TO ACCESS IS THE ONE THAT CREATED IT OR A ACCESS RECOVER CALL
                 return req;
             if(!req.isCommited){
                 Thread.Sleep(1000);
@@ -89,9 +88,7 @@ namespace SlaveServer
 
         public void checkStatus()
         {
-
             while (freezed || failed) { }
-
         }
 
         public bool ping()

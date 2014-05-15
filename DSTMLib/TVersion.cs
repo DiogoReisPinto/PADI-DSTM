@@ -9,9 +9,9 @@ namespace PADIDSTM
     public class TVersion:MarshalByRefObject
     {
         
-        public long writeTS;
-        public int versionVal;
-        public bool commited;
+        public long writeTS; //WRITE TIMESTAMP OF THE TENTATIVE VERSION
+        public int versionVal; //VALUE OF THE WRITE OF TENTATIVE VERSION
+        public bool commited; //IF TENTATIVE VERSION IS COMMITED OR NOT
 
         public TVersion(long wts, int val)
         {

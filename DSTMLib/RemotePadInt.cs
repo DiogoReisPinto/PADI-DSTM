@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Serialization.Formatters;
@@ -17,12 +18,12 @@ namespace PADIDSTM
         public int uid;
         public int value;
         public string url;
-        private long wts;
-        public List<long> rts = new List<long>();
-        public List<TVersion> tentativeVersions = new List<TVersion>();
+        private long wts; //WRITE TIMESTAMP OF THE LAST WRITE
+        public List<long> rts = new List<long>(); //LIST OF READ TIMESTAMPS
+        public List<TVersion> tentativeVersions = new List<TVersion>(); //LIST OF TENTATIVE VERSIONS FOR EACH PADINT
         public bool isCommited;
-        public long creatorTID;
-        public TVersion preparedCommit;
+        public long creatorTID; //USED FOR KNOWING WHICH TRANSACTION CREATED THE PADINT
+        public TVersion preparedCommit; //IF PADINT IS READY FOR COMMIT
         public bool freezed = false;
         public bool failed = false;
         
@@ -49,9 +50,9 @@ namespace PADIDSTM
             this.isCommited = false;
         }
 
+        //CALL IN THE CONTEXT OF A RECOVER OPERATION. USED TO COPY A PADINT
         public RemotePadInt(RemotePadInt availablePadInt, string newURL)
         {
-
             this.uid = availablePadInt.uid;
             this.value = availablePadInt.value;
             this.url = newURL;
@@ -64,6 +65,7 @@ namespace PADIDSTM
             this.freezed = availablePadInt.freezed;
         }
 
+        //USED IN ACCESSES TO KNOW IF A PADINT IS ON A FAILED/FREEZED SERVER. IF YES DOESNT RESPOND, ELSE RETURNS UID
         public int getUID(){
             while (freezed) { }
             while (failed)
@@ -88,16 +90,16 @@ namespace PADIDSTM
             int val;
             if (tc > this.wts)
             {
-                TVersion dSelect = getMax(tc);
-                if (dSelect == null)
+                TVersion dSelect = getMax(tc); //GETS THE TVERSION WITH THE GREATEST TIMESTAMP
+                if (dSelect == null) //WHEN THERE ARE NOT TVERSIONS
                 {
                     rts.Add(tc);
-                    server.checkStatus();
+                    server.checkStatus(); //TO BLOCK WHEN SERVER IS FREEZED OR FAILED
                     return 0;
                 }
                 if (dSelect.commited || dSelect.writeTS == tc)
                 {
-                    server.checkStatus();//to block when server is freezed or failed
+                    server.checkStatus();//TO BLOCK WHEN SERVER IS FREEZED OR FAILED
                     val = dSelect.versionVal;
                     rts.Add(tc);
                 }
@@ -107,7 +109,7 @@ namespace PADIDSTM
                     Thread.Sleep(4000);
                     if (dSelect.writeTS == this.wts)
                     {
-                        server.checkStatus();//to block when server is freezed or failed
+                        server.checkStatus();//TO BLOCK WHEN SERVER IS FREEZED OR FAILED
                         val = dSelect.versionVal;
                         rts.Add(tc);
                     }
@@ -130,7 +132,6 @@ namespace PADIDSTM
                 while (true) { }
             }
             string[] txID = ts.Split('#');
-
             long tc = Convert.ToInt64(txID[0]);
             int tieBreaker = Convert.ToInt32(ts.Split('#')[1]);
             ISlave server = (ISlave)Activator.GetObject(
@@ -139,10 +140,10 @@ namespace PADIDSTM
             long maxD = Int64.MinValue;
             if (rts.Count > 0)
                 maxD = rts.Max();
-            if (tc >= maxD && tc > wts)
+            if (tc >= maxD && tc > wts) //CASE THAT TRANSACTION TS IS GREATER THAN ANY READTIMESTAMP AND GREATER THAN THE PADINT WRITE TS
             {
-                server.checkStatus();
-                tentativeVersions.Add(new TVersion(tc, val));
+                server.checkStatus(); //CALL TO BLOCK WHEN FREEZED OR FAILED
+                tentativeVersions.Add(new TVersion(tc, val)); //ADDS THE TENTATIVE VERSION
                 this.value = val;
                 return true;
             }
@@ -150,6 +151,7 @@ namespace PADIDSTM
                 return false;
         }
 
+        //RETUNS THE TVERSION WITH THE GREATEST TIMESTAMP
         private TVersion getMax(long ts)
         {
             TVersion max = null;
@@ -166,14 +168,16 @@ namespace PADIDSTM
             return max;
         }
 
+        //CALL FOR ABORT THE TRANSACTION IN THE PADINT
         public int abortTx(long txID)
         {
-            while (freezed) { }
-            while (failed)
+            while (freezed || failed)
             {
-                while (true) { }
-            }
-            List<TVersion> toRemove = new List<TVersion>();
+                Thread.Sleep(5000);
+                if (freezed || failed)
+                    throw new SocketException();
+            };
+            List<TVersion> toRemove = new List<TVersion>(); //TVERSIONS OF THE TRANSACTION TO ABORT WILL BE REMOVED
             foreach (TVersion tv in tentativeVersions)
             {
                 if (tv.writeTS == txID)
@@ -186,14 +190,15 @@ namespace PADIDSTM
             return 1;
         }
 
+        //CALL FOR THE FIRST PHASE OF 2PC PROTOCOL
         public int prepareCommitTx(long txID)
         {
-            bool res = FreezeFailedCycle();
-            while (freezed) { }
-            while (failed)
+            while (freezed || failed)
             {
-                while (true) { }
-            }
+                Thread.Sleep(5000);
+                if (freezed || failed)
+                    throw new SocketException();
+            };
             foreach (TVersion tv in tentativeVersions)
             {
                 if (tv.writeTS == txID)
@@ -206,6 +211,7 @@ namespace PADIDSTM
             return 1;
         }
 
+        //CALL FOR THE SECOND PHASE OF 2PC PROTOCOL
         public int commitTx(long txID)
         {
             this.value = preparedCommit.versionVal;
@@ -215,23 +221,18 @@ namespace PADIDSTM
             return 1;
         }
 
+        //CALL FOR THE FIRST PHASE OF 2PC PROTOCOL
         public int prepareCommitPadInt(long txID) {
-            try
-            {
-                bool res = FreezeFailedCycle();
-            }
-            catch (Exception)
-            {
-                throw new IOException();
-            }
-            while (freezed) { }
-            while (failed)
-            {
-                while (true) { }
-            }
+            while (freezed || failed)
+                {
+                    Thread.Sleep(5000);
+                    if (freezed || failed)
+                        throw new SocketException();
+                };
             return 1;
         }
 
+        //CALL FOR THE SECOND PHASE OF 2PC PROTOCOL
         public int commitPadInt(long txID)
         {
             this.isCommited = true;
@@ -256,12 +257,6 @@ namespace PADIDSTM
             this.failed = false;
         }
 
-        public bool FreezeFailedCycle()
-        {
-            ISlave server = (ISlave)Activator.GetObject(
-                                     typeof(ISlave),
-                                 url);
-            return server.ping();
-        }
+       
     }
 }
