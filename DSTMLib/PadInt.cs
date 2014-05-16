@@ -31,12 +31,12 @@ namespace PADIDSTM
             }
             catch (TxException e) //CASE THAT A WRITE FAILS IN THE SLAVE
             {
-                DSTMLib.TxAbort();//ABORTS TRANSACTION
-                string msg = e.message;
+                //DSTMLib.TxAbort();//ABORTS TRANSACTION
+                string msg = e.Message;
                 throw new TxException(msg);
 
             }
-            catch (Exception)
+            catch (Exception) //IF THE SERVER IS FAILED
             {
                 DSTMLib.TxAbort();
                 throw new TxException("Cant write commit because server to write is not available. Transaction Aborted");
@@ -65,8 +65,8 @@ namespace PADIDSTM
             }
             catch (TxException e) //IF READ IS NOT POSSIBLE WE SHOULD ABORT THE TRANSACTION
             {
-                DSTMLib.TxAbort();
-                string msg = e.message;
+                //DSTMLib.TxAbort();
+                string msg = e.Message;
                 throw new TxException(msg);
             }
 

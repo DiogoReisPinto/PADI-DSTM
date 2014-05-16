@@ -36,7 +36,7 @@ namespace PADIDSTM
             provider.TypeFilterLevel = TypeFilterLevel.Full;
             IDictionary props = new Hashtable();
             props["port"] = 0; //FINDS AUTOMATICALLY A PORT AVAILABLE
-            props["timeout"] = 5000; // TIMEOUT FOR THE CLIENT
+            props["timeout"] = 8000; // TIMEOUT FOR THE CLIENT
             TcpChannel channel = new TcpChannel(props, null, provider);
             ChannelServices.RegisterChannel(channel, true);
             masterServ = (IMaster)Activator.GetObject(

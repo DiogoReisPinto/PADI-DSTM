@@ -130,11 +130,7 @@ namespace Client
             }
             catch (TxException txe)
             {
-                transaction = false;
                 log(txe.message);
-                log("Transaction aborted");
-                setPadIntButtons();
-                setAccessButtons(false);
             }
         }
 
@@ -153,11 +149,7 @@ namespace Client
                 }
                 catch (TxException txe)
                 {
-                    transaction = false;
-                    log(txe.message);
-                    log("Transaction aborted");
-                    setPadIntButtons();
-                    setAccessButtons(false);
+                    log(txe.Message);
                 }
             }
         }

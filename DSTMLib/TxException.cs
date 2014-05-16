@@ -17,11 +17,20 @@ namespace PADIDSTM
             this.message = message;
         }
 
+        public override string Message
+        {
+            get
+            {
+                return message;
+            }
+        }
+
         public TxException(System.Runtime.Serialization.SerializationInfo info,
 		System.Runtime.Serialization.StreamingContext context)
 		: base(info, context) {
+        
             message = info.GetString("message");
-	}
+	    }
 
         [SecurityPermissionAttribute(SecurityAction.Demand,
 SerializationFormatter = true)]
